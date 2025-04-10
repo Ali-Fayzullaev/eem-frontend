@@ -1,0 +1,37 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "Ali",
+      "email": "ali@mail.com"
+    },
+    {
+      "id": 2,
+      "name": "Vali",
+      "email": "vali@mail.com"
+    },
+    {
+      "id": "1128",
+      "email": "rofeg21670@esterace.com",
+      "password": "ssssssssss"
+    },
+    {
+      "id": "e28b",
+      "email": "rofeg21670@esterace.com",
+      "password": "ssssssssss"
+    },
+    {
+      "id": "6772",
+      "email": "alifayzullaev2020@gmail.com",
+      "password": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "id": "6b99",
+      "refreshToken": "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJzdHVke..."
+    },
+    {
+      "id": "9d40",
+      "refreshToken": "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJzdHVke..."
+    }
+  ]
+}

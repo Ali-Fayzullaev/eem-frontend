@@ -1,0 +1,463 @@
+.bb {
+  border: 2px solid red;
+}
+body {
+  font-family: "Poppins", sans-serif;
+}
+
+/* Size  */
+
+.top-40 {
+  top: 30%;
+}
+
+.top-70 {
+  top: 70%;
+}
+
+.w-70 {
+  width: 70vw;
+}
+
+/* custom input */
+
+.custom-input {
+  backdrop-filter: blur(3px); /* Туманли эффект */
+  background-color: rgba(255, 255, 255, 0.6); /* Орқа фон */
+  padding: 12px; /* Ички ҳошия */
+  font-size: 18px; /* Матн ўлчами */
+  border-radius: 8px; /* Бурчаклар */
+  outline: none; /* Фокусда чегара чиқмаслиги учун */
+  transition: 0.3s; /* Анимация */
+}
+
+/* Фокус (клик қилинганда) */
+.custom-input:focus {
+  box-shadow: 0 0 10px rgba(255, 87, 34, 0.5); /* Ёруғлик эффект */
+  backdrop-filter: blur(15px); /* Туманли эффект */
+  background-color: #fff; /* Орқа фон */
+}
+.custom-input:hover {
+  backdrop-filter: blur(5px); /* Туманли эффект */
+  background-color: #fff; /* Орқа фон */
+}
+
+/* custom-img */
+
+.custom-img {
+  width: 80%;
+  height: 80%;
+  object-fit: cover;
+}
+
+/* loader && loaderErr*/
+
+/* HTML: <div class="loaderBtn"></div> */
+/* HTML: <div class="loader"></div> */
+.loaderBtn {
+  width: 30px;
+  aspect-ratio: 1;
+  display:grid;
+  -webkit-mask: conic-gradient(from 15deg,#0000,#000);
+  animation: l26 1s infinite steps(12);
+}
+.loaderBtn,
+.loaderBtn:before,
+.loaderBtn:after{
+  background:
+    radial-gradient(closest-side at 50% 12.5%,
+    #ffffff 96%,#0000) 50% 0/20% 80% repeat-y,
+    radial-gradient(closest-side at 12.5% 50%,
+    #ffffff 96%,#0000) 0 50%/80% 20% repeat-x;
+}
+.loaderBtn:before,
+.loaderBtn:after {
+  content: "";
+  grid-area: 1/1;
+  transform: rotate(30deg);
+}
+.loaderBtn:after {
+  transform: rotate(60deg);
+}
+
+@keyframes l26 {
+  100% {transform:rotate(1turn)}
+}
+
+
+
+
+
+.loade {
+  width: fit-content;
+  font-weight: bold;
+  font-family: sans-serif;
+  font-size: 30px;
+  padding-bottom: 8px;
+  background: linear-gradient(currentColor 0 0) 0 100%/0% 3px no-repeat;
+  animation: l2 2s linear infinite;
+}
+.loader:before {
+  content: "Loading...";
+}
+@keyframes l2 {
+  to {
+    background-size: 100% 3px;
+  }
+}
+
+
+.loaderErr {
+  width: fit-content;
+  font-weight: bold;
+  font-family: sans-serif;
+  font-size: 30px;
+  padding-bottom: 8px;
+  background: linear-gradient(currentColor 0 0) 0 100%/0% 3px no-repeat;
+  animation: l2 2s linear infinite;
+}
+.loaderErr:before {
+  content: "Error...";
+}
+@keyframes l2 {
+  to {
+    background-size: 100% 3px;
+  }
+}
+
+/* loader for evnts  */
+.loaderEvents {
+  width: 20px;
+  aspect-ratio: 1;
+  display: grid;
+  animation: l26 1s infinite steps(12);
+}
+.loaderEvents,
+.loaderEvents:before,
+.loaderEvents:after {
+  background: radial-gradient(closest-side at 50% 12.5%, #f03355 96%, #0000) 50%
+      0/20% 80% repeat-y,
+    radial-gradient(closest-side at 12.5% 50%, #f03355 96%, #0000) 0 50%/80% 20%
+      repeat-x;
+}
+.loaderEvents:before,
+.loaderEvents:after {
+  content: "";
+  grid-area: 1/1;
+  transform: rotate(30deg);
+}
+.loaderEvents:after {
+  transform: rotate(60deg);
+}
+
+@keyframes l26 {
+  100% {
+    transform: rotate(1turn);
+  }
+}
+
+/* accordion Css */
+
+.my-custom-accordion .accordion-button {
+  background-color: #31d2f2;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.my-custom-accordion .accordion-button:not(.collapsed) {
+  background-color: #0fb2d8;
+}
+
+.my-custom-accordion .accordion-body {
+  font-size: 16px;
+  background-color: #cff4fc;
+  padding: 20px;
+  border-top: 2px solid #31d2f2;
+  transition: all 1s ease-in-out;
+}
+
+.accordion-collapse {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+
+.accordion-collapse.show {
+  overflow-y: auto;
+  max-height: 100vh; /* Контент катталигига қараб ўзгартиринг */
+  opacity: 1;
+}
+
+/* Navbar css  */
+nav a {
+  padding: 5px;
+  padding-left: 15px;
+  padding-right: 15px;
+  background-color: #31d2f2;
+  border-radius: 10px;
+  color: white;
+}
+
+nav a.active {
+  background-color: #0c839d;
+}
+
+/* scrollbar css  */
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #31d2f2;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #0fb2d8;
+}
+
+.scrollable {
+  scrollbar-width: thin; /* "auto", "thin" ёки "none" */
+  scrollbar-color: #0fb2d8 #f1f1f1; /* (скролл ранги, фон ранги) */
+}
+
+/* hr css sryle */
+.hr-horizontal-gradient {
+  margin: 20px 0;
+  padding: 0;
+  height: 6px;
+  background: linear-gradient(45deg, #0fb2d8, #dddddd);
+}
+
+/* colors custom   */
+
+.color-custom {
+  color: rgb(0, 255, 0);
+}
+
+.form-label {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #4a4a4a;
+}
+
+.form-control,
+.form-select,
+textarea {
+  font-size: 1rem;
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid #ddd;
+  background-color: #ffffff;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-control:focus,
+.form-select:focus,
+textarea:focus {
+  border-color: #0dcaf0;
+  box-shadow: 0 0 8px rgba(108, 92, 247, 0.4);
+}
+
+/* Кнопкалар */
+.btn {
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-info:hover {
+  background-color: #5a4ac7;
+  border-color: #5a4ac7;
+}
+
+.btn-danger {
+  background-color: #e74c3c;
+  border: 1px solid #e74c3c;
+  color: #ffffff;
+}
+
+.btn-danger:hover {
+  background-color: #c0392b;
+  border-color: #c0392b;
+}
+
+/* Расм юклаш жойи */
+.form-control[type="file"] {
+  cursor: pointer;
+  padding: 12px;
+}
+
+input[type="date"]:focus,
+input[type="time"]:focus {
+  border-color: #6c5ce7;
+  box-shadow: 0 0 8px rgba(108, 92, 247, 0.4);
+}
+
+/* Текст бўлимлари */
+textarea {
+  resize: vertical;
+  min-height: 120px;
+  padding: 12px;
+  font-size: 1rem;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  transition: border-color 0.3s ease;
+}
+
+/* Формадаги хатоларни кўрсатиш */
+textarea:focus {
+  border-color: #6c5ce7;
+  box-shadow: 0 0 8px rgba(108, 92, 247, 0.4);
+}
+
+/* Основной стиль для списка участников */
+.participants-list {
+  margin: 20px;
+  font-family: Arial, sans-serif;
+}
+
+/* Стиль для заголовков */
+.event-details h2 {
+  color: #0177ff;
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+/* Стиль для информации об ивенте */
+.event-details p {
+  font-size: 16px;
+  color: #333;
+  margin: 5px 0;
+}
+
+/* Стиль для таблицы */
+.table {
+  width: 100%;
+  margin-top: 20px;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.table th {
+  background-color: #f8f9fa;
+  font-weight: bold;
+}
+
+.table-striped tbody tr:nth-child(odd) {
+  background-color: #f9f9f9;
+}
+
+/* Стиль для текста при отсутствии участников */
+.participants-list p {
+  font-size: 18px;
+  color: #888;
+}
+
+@property --eb-progress-value {
+  syntax: "<integer>";
+  inherits: false;
+  initial-value: 0;
+}
+
+@keyframes eb-progress {
+  to {
+    --eb-progress-value: var(--value);
+  }
+}
+
+.eb-progress-bar {
+  --size: 14.5rem;
+  --inner-bg: #f2f2f2;
+  --primary-color: var(--col);
+  --secondary-color: #dfe0e0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 0px 2px rgb(0 0 0 / 40%), inset 0 0px 1px rgb(0 0 0 / 30%),
+    0 1px 2px rgb(0 0 0 / 60%), 0 4px 2px rgb(0 0 0 / 20%),
+    0 9px 4px rgb(0 0 0 / 10%), inset 0 2px 1px #ffffff8c;
+  width: var(--size);
+  height: var(--size);
+  font-size: calc(var(--size) / 5);
+  color: var(--primary-color);
+  background: radial-gradient(
+      closest-side,
+      var(--inner-bg) 79%,
+      transparent 80% 100%
+    ),
+    conic-gradient(
+      var(--primary-color) calc(var(--eb-progress-value) * 1%),
+      var(--secondary-color) 0
+    );
+  border-radius: 50%;
+
+  &-wrapper {
+    display: grid;
+    place-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    transform: scale(1.5);
+  }
+
+  &,
+  &::before {
+    animation: eb-progress 2s 1 forwards;
+  }
+
+  &::before {
+    counter-reset: percentage var(--eb-progress-value);
+    content: counter(percentage) "%";
+    font-weight: 400;
+    font-family: Roboto;
+    color: #1b75e3;
+
+    background: #f5f6f7;
+    background-image: -webkit-gradient(
+      linear,
+      right top,
+      right bottom,
+      color-stop(0%, #ffffff),
+      color-stop(100%, #d3d1cb)
+    );
+
+    box-shadow: 1px 1px 3px rgb(0 0 0 / 15%);
+    padding: 20px 15px;
+    border-radius: 50%;
+    z-index: 1;
+    position: relative;
+    border: 1px solid #d0d0d0;
+  }
+
+  &-title {
+    text-align: center;
+    color: inherit;
+    letter-spacing: 2px;
+    line-height: 1.2;
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 400;
+    font-family: Roboto;
+  }
+
+  progress {
+    visibility: hidden;
+    width: 0;
+    height: 0;
+  }
+}
