@@ -59,7 +59,7 @@ import Signup from "./pages/Signup";
 import SubscribersList from "./pages/SubscribersList";
 import RootLayout from "./Layout/RootLayout";
 import DataChanges from "./components/DataChanges";
-import EventDetail from "./components/eventDetail";
+import EventDetail from "./components/EventDetail"
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute"; 
 

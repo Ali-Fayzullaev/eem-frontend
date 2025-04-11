@@ -1,7 +1,6 @@
 // // import from rht
 // import toast from "react-hot-toast";
-
-// // import from react 
+// // import from react
 // import { useState } from "react";
 
 // // import axios
@@ -11,7 +10,6 @@
 // import { NavLink, useNavigate } from "react-router-dom";
 
 // import { authService } from "../api/authService";
-
 
 // // import img
 // import iconEventManagement from "../assets/iconEvent.png";
@@ -26,15 +24,10 @@
 //   const [loaderBtn, setLoaderBtn] = useState(true);
 //   const navigate = useNavigate();
 
-  
-
 //   // baseURL
 //   // const axiosInstance = axios.create({
 //   //   baseURL: "https://67ddbf11471aaaa742826b6e.mockapi.io",
 //   // });
-
-
-  
 
 //   const [formData, setFormData] = useState({
 //     username: '',
@@ -59,10 +52,6 @@
 //       setError(err.response?.data?.message || 'Registration failed');
 //     }
 //   };
-
-
-
-  
 
 //   // const handleSubmit = async (e) => {
 //   //   e.preventDefault();
@@ -91,9 +80,6 @@
 
 //   //   setValidated(false);
 //   // };
-  
-
-
 //   return (
 //     <div className="container h-100  align-content-center ">
 //       <div className="row d-flex justify-content-center ">
@@ -170,7 +156,6 @@
 
 // export default Login;
 
-
 import toast from "react-hot-toast";
 import { useState } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
@@ -192,7 +177,7 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const form = e.currentTarget;
-    
+
     // Валидация формы
     if (form.checkValidity() === false) {
       e.stopPropagation();
@@ -204,7 +189,7 @@ function Login() {
     try {
       setLoading(true);
       await authService.login({ email, password });
-      
+
       toast.success("Login successful!");
       navigate(from, { replace: true }); // Редирект на предыдущую страницу или главную
     } catch (err) {
