@@ -19,27 +19,30 @@ body {
   width: 70vw;
 }
 
+.h {
+  height: auto;
+}
+
 /* custom input */
 
 .custom-input {
-  backdrop-filter: blur(3px); /* Туманли эффект */
-  background-color: rgba(255, 255, 255, 0.6); /* Орқа фон */
-  padding: 12px; /* Ички ҳошия */
-  font-size: 18px; /* Матн ўлчами */
-  border-radius: 8px; /* Бурчаклар */
-  outline: none; /* Фокусда чегара чиқмаслиги учун */
-  transition: 0.3s; /* Анимация */
+  backdrop-filter: blur(3px);
+  background-color: rgba(255, 255, 255, 0.6);
+  padding: 12px;
+  font-size: 18px;
+  border-radius: 8px;
+  outline: none;
+  transition: 0.3s;
 }
 
-/* Фокус (клик қилинганда) */
 .custom-input:focus {
-  box-shadow: 0 0 10px rgba(255, 87, 34, 0.5); /* Ёруғлик эффект */
-  backdrop-filter: blur(15px); /* Туманли эффект */
-  background-color: #fff; /* Орқа фон */
+  box-shadow: 0 0 10px rgba(255, 87, 34, 0.5);
+  backdrop-filter: blur(15px);
+  background-color: #fff;
 }
 .custom-input:hover {
-  backdrop-filter: blur(5px); /* Туманли эффект */
-  background-color: #fff; /* Орқа фон */
+  backdrop-filter: blur(5px);
+  background-color: #fff;
 }
 
 /* custom-img */
@@ -53,22 +56,20 @@ body {
 /* loader && loaderErr*/
 
 /* HTML: <div class="loaderBtn"></div> */
-/* HTML: <div class="loader"></div> */
 .loaderBtn {
   width: 30px;
   aspect-ratio: 1;
-  display:grid;
-  -webkit-mask: conic-gradient(from 15deg,#0000,#000);
+  display: grid;
+  -webkit-mask: conic-gradient(from 15deg, #0000, #000);
   animation: l26 1s infinite steps(12);
 }
 .loaderBtn,
 .loaderBtn:before,
-.loaderBtn:after{
-  background:
-    radial-gradient(closest-side at 50% 12.5%,
-    #ffffff 96%,#0000) 50% 0/20% 80% repeat-y,
-    radial-gradient(closest-side at 12.5% 50%,
-    #ffffff 96%,#0000) 0 50%/80% 20% repeat-x;
+.loaderBtn:after {
+  background: radial-gradient(closest-side at 50% 12.5%, #ffffff 96%, #0000) 50%
+      0/20% 80% repeat-y,
+    radial-gradient(closest-side at 12.5% 50%, #ffffff 96%, #0000) 0 50%/80% 20%
+      repeat-x;
 }
 .loaderBtn:before,
 .loaderBtn:after {
@@ -81,12 +82,10 @@ body {
 }
 
 @keyframes l26 {
-  100% {transform:rotate(1turn)}
+  100% {
+    transform: rotate(1turn);
+  }
 }
-
-
-
-
 
 .loade {
   width: fit-content;
@@ -105,7 +104,6 @@ body {
     background-size: 100% 3px;
   }
 }
-
 
 .loaderErr {
   width: fit-content;

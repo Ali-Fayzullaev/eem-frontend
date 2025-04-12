@@ -13,11 +13,9 @@ import useFetch from "../hook/useFetch";
 import { useState } from "react";
 
 function Home() {
-
   // useState
   const [searchLocation, setSearchLocation] = useState("");
   const [eventCategory, setEventCategory] = useState("");
-
 
   // search location and Category
   const {
@@ -27,8 +25,6 @@ function Home() {
   } = useFetch(
     `https://67ddbf11471aaaa742826b6e.mockapi.io/events?eventName=${eventCategory}&location=${searchLocation}`
   );
-
-
 
   const { data: eventsData } = useFetch(
     "https://67ddbf11471aaaa742826b6e.mockapi.io/join"
@@ -40,7 +36,6 @@ function Home() {
 
   return (
     <div>
-
       {/* img  serch location and category  */}
       <div className="position-relative ">
         <img src={home} className="img-fluid" alt="Background" />
@@ -69,7 +64,7 @@ function Home() {
                       className="input-group-text   custom-input"
                       id="basic-addon1"
                     >
-                      <i class="bi bi-search"></i>
+                      <i className="bi bi-search"></i>
                     </span>
                   </div>
                 </div>
@@ -87,7 +82,7 @@ function Home() {
                       className="input-group-text custom-input"
                       id="basic-addon2"
                     >
-                      <i class="bi bi-search"></i>
+                      <i className="bi bi-search"></i>
                     </span>
                   </div>
                 </div>
@@ -119,7 +114,7 @@ function Home() {
 
               return (
                 <div
-                  className="col-12 col-md-6 border border-2 border-info rounded shadow col-lg-3 my-3 pb-3 mx-3"
+                  className="col-5 border border-2 border-info rounded shadow col-lg-3 my-3 mx-2  pb-3 "
                   key={event.id}
                 >
                   <NavLink
@@ -127,7 +122,7 @@ function Home() {
                     className="text-dark link-underline link-underline-opacity-0"
                   >
                     <div className="row">
-                      <div className="col-12 p-0">
+                      <div className="col-12  p-0">
                         <img
                           src={event.imgUrl}
                           className="img-fluid rounded-3"

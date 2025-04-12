@@ -29,7 +29,6 @@ function EventDetail() {
   // useFetch
   const { data: detailEvents, err, louding } = useFetch(url);
 
-
   // useState
   const [isVisible, setIsVisible] = useState(false);
   const [loaderBtn, setLoaderBtn] = useState(true);
@@ -66,12 +65,10 @@ function EventDetail() {
 
   // BackToTop
 
-
   // baseURL
   const axiosInstance = axios.create({
     baseURL: "https://67ddbf11471aaaa742826b6e.mockapi.io",
   });
-
 
   //useState
   const [validated, setValidated] = useState(false);
@@ -79,8 +76,6 @@ function EventDetail() {
   const [idNumber, setIdNumber] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [detailEvent, setDetailEvent] = useState({});
-
-
 
   const fetchDetails = async () => {
     try {
@@ -97,7 +92,6 @@ function EventDetail() {
     fetchDetails();
   }, [id]);
 
-
   // join user
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -108,7 +102,7 @@ function EventDetail() {
       return;
     }
     try {
-      setLoaderBtn(false)
+      setLoaderBtn(false);
       const response = await axiosInstance.post("/join", {
         nameUser,
         idNumber,
@@ -181,7 +175,7 @@ function EventDetail() {
                   to="/"
                 >
                   {" "}
-                  <i class="bi bi-arrow-left text-white"></i> BACK
+                  <i className="bi bi-arrow-left text-white"></i> BACK
                 </NavLink>{" "}
               </button>
             </div>
@@ -214,16 +208,16 @@ function EventDetail() {
                   {detailEvents.eventName},
                 </h2>
                 <p className=" fs-6 fw-medium">
-                  <i class="bi bi-geo-alt-fill text-danger"></i>Location:{" "}
+                  <i className="bi bi-geo-alt-fill text-danger"></i>Location:{" "}
                   {detailEvents.location}
                 </p>
                 <p className="fw-bold">
-                  <i class="bi bi-translate text-primary"></i> Language:{" "}
+                  <i className="bi bi-translate text-primary"></i> Language:{" "}
                   {detailEvents.language}
                 </p>
                 <p>
-                  <i class="bi bi-calendar-date-fill text-success"></i> Start:{" "}
-                  {detailEvents.startDate} , {detailEvents.startTime}
+                  <i className="bi bi-calendar-date-fill text-success"></i>{" "}
+                  Start: {detailEvents.startDate} , {detailEvents.startTime}
                 </p>
                 <p>
                   ⌛ End: {detailEvents.endDate} , {detailEvents.endTime}
@@ -249,7 +243,7 @@ function EventDetail() {
                   href={`tel:${detailEvents.phone}`}
                   className="btn btn-primary"
                 >
-                  <i class="bi bi-telephone-fill"></i> {detailEvents.phone}
+                  <i className="bi bi-telephone-fill"></i> {detailEvents.phone}
                 </a>
                 <a
                   href={`mailto:${detailEvents.email}`}
@@ -266,7 +260,8 @@ function EventDetail() {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <i class="bi bi-geo-alt-fill text-danger"></i> Open in Maps
+                    <i className="bi bi-geo-alt-fill text-danger"></i> Open in
+                    Maps
                   </a>
                   <a
                     href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${detailEvents.eventName}&dates=${detailEvents.startDate}T${detailEvents.startTime}/${detailEvents.endDate}T${detailEvents.endTime}&details=${detailEvents.description}`}
@@ -301,7 +296,6 @@ function EventDetail() {
                             aria-expanded={showForm ? "true" : "false"}
                             aria-controls="collapseOne"
                           >
-                            
                             JOIN EVENT
                           </button>
                         </h2>
@@ -359,7 +353,10 @@ function EventDetail() {
                                 <div className="invalid-feedback">
                                   Please enter your ID number.
                                 </div>
-                                <div id="passwordHelpBlock" class="form-text">
+                                <div
+                                  id="passwordHelpBlock"
+                                  className="form-text"
+                                >
                                   Enter your ID number (e.g., Passport, INN, or
                                   License Number).
                                 </div>
@@ -370,8 +367,13 @@ function EventDetail() {
                                   type="submit"
                                   className="btn btn-success px-5 d-flex justify-content-center"
                                 >
-                                   <span>{loaderBtn ? <span>Join</span> : <span className="loaderBtn"></span>}</span>
-                                 
+                                  <span>
+                                    {loaderBtn ? (
+                                      <span>Join</span>
+                                    ) : (
+                                      <span className="loaderBtn"></span>
+                                    )}
+                                  </span>
                                 </button>
                               </div>
                             </form>
@@ -383,7 +385,7 @@ function EventDetail() {
                 ) : (
                   <div className="col-12 col-md-8 col-lg-4 my-3 d-flex justify-content-end">
                     <button className="btn btn-info  px-5 text-white py-2">
-                      <i class="bi bi-check-circle-fill color-custom"></i>{" "}
+                      <i className="bi bi-check-circle-fill color-custom"></i>{" "}
                       JOINED:{" "}
                       <span className=" fw-bold">{detailEvents.eventName}</span>
                     </button>
@@ -401,60 +403,56 @@ function EventDetail() {
       {/* Other events  */}
       <div className="container">
         Other events <br />
-        <div className="row d-flex justify-content-center">
+        <div className="row d-flex justify-content-center ">
           {louding && <div className="loader"></div>}
           {err && <div className="loaderErr"></div>}
           {event &&
             event.map((event) => {
               return (
-                <>
-                  <div
-                    className="col-12 col-md-6  border border-2 border-info rounded shadow  col-lg-3  rounded-3 my-3 pb-3 mx-3"
-                    key={event.id}
+                <div
+                  className="col-5  border border-2 border-info rounded shadow  col-lg-3  rounded-3 my-3 pb-3 mx-3"
+                  key={event.id}
+                >
+                  <NavLink
+                    onClick={scrollToTop}
+                    to={`/${event.id}`}
+                    className="text-dark link-underline link-underline-opacity-0"
                   >
-                    <NavLink
-                      onClick={scrollToTop}
-                      to={`/${event.id}`}
-                      className="text-dark link-underline link-underline-opacity-0"
-                    >
-                      <div className="row">
-                        <div className="col-12 p-0">
-                          <img
-                            src={event.imgUrl}
-                            className=" img-fluid rounded-3"
-                            style={{
-                              width: "100%",
-                              height: "250px",
-                              objectFit: "cover",
-                            }}
-                            alt={event.eventName}
-                          />
-                        </div>
-                        <div className="col-12 fw-medium text-truncate ">
-                          <i className="bi bi-bookmark-check-fill text-primary"></i>
-                          {event.eventName} ,
-                          <span className="fw-bold">
-                            <i className="bi bi-geo-alt-fill text-danger"></i>{" "}
-                            {event.location}
-                          </span>
-                        </div>
-
-                        <div className="col-12">
-                          <i className="bi bi-calendar-date-fill text-warning"></i>{" "}
-                          {event.startDate} ,
-                          <i className="bi bi-alarm-fill text-info"></i>{" "}
-                          {event.startTime}
-                        </div>
-
-                        <div className="col-12">
-                          <span className="badge bg-info">
-                            {event.eventType}
-                          </span>
-                        </div>
+                    <div className="row">
+                      <div className="col-12 p-0">
+                        <img
+                          src={event.imgUrl}
+                          className=" img-fluid rounded-3"
+                          style={{
+                            width: "100%",
+                            height: "250px",
+                            objectFit: "cover",
+                          }}
+                          alt={event.eventName}
+                        />
                       </div>
-                    </NavLink>
-                  </div>
-                </>
+                      <div className="col-12 fw-medium text-truncate ">
+                        <i className="bi bi-bookmark-check-fill text-primary"></i>
+                        {event.eventName} ,
+                        <span className="fw-bold">
+                          <i className="bi bi-geo-alt-fill text-danger"></i>{" "}
+                          {event.location}
+                        </span>
+                      </div>
+
+                      <div className="col-12">
+                        <i className="bi bi-calendar-date-fill text-warning"></i>{" "}
+                        {event.startDate} ,
+                        <i className="bi bi-alarm-fill text-info"></i>{" "}
+                        {event.startTime}
+                      </div>
+
+                      <div className="col-12">
+                        <span className="badge bg-info">{event.eventType}</span>
+                      </div>
+                    </div>
+                  </NavLink>
+                </div>
               );
             })}
         </div>

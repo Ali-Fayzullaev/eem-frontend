@@ -1,6 +1,5 @@
-
 // import  react
-import  { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
 // import from axios
 import axios from "axios";
@@ -26,7 +25,7 @@ function MyEvents() {
   const [subscribedEvents, setSubscribedEvents] = useState([]);
   const [showTwo, setShowTwo] = useState(false);
 
-  // API for events 
+  // API for events
   const {
     data: events,
     loading,
@@ -46,17 +45,13 @@ function MyEvents() {
     }
   };
 
-  
   const handleOpenCloseAccordion = () => {
     setShow(!show);
   };
 
-
   const handleOpenCloseAccordionTwo = () => {
     setShowTwo(!showTwo);
   };
-
-  
 
   const fetchSubscribedEvents = async () => {
     try {
@@ -72,9 +67,7 @@ function MyEvents() {
       setSubscribedEvents(res.data);
     } catch (err) {
       console.error("Error:", err);
-    } 
-
-    
+    }
   };
 
   const handleUnsubscribe = async (id) => {
@@ -101,7 +94,7 @@ function MyEvents() {
     <div className="container ">
       <Toaster />
       <ToastContainer />
-      <h2 className="text-center mb-4">📅 My Events</h2>
+      <h2 className="text-center mb-4 text-info">📅 My Events</h2>
       <div className="accordion" id="accordionPanelsStayOpenExample">
         <div className="accordion-item my-custom-accordion">
           <h2 className="accordion-header">
@@ -114,7 +107,7 @@ function MyEvents() {
             >
               <div className="w-100 h-100 my-2 text-start d-flex justify-content-between align-items-center">
                 <span className="fw-medium fs-5">My Created Events </span>
-                { events?.length ? (
+                {events?.length ? (
                   <span className="fw-bolder mx-3">
                     You have:
                     <code className="fs-5 ">
@@ -228,7 +221,7 @@ function MyEvents() {
                                       data-bs-dismiss="modal"
                                       className="btn btn-danger text-white"
                                     >
-                                     🗑 Сancel
+                                      🗑 Сancel
                                     </button>
                                   </div>
                                 </div>
@@ -238,7 +231,7 @@ function MyEvents() {
                           <div className="d-flex gap-2">
                             <NavLink to={`change/${event.id}`}>
                               <button className="btn btn-info mt-2 text-white">
-                                 Changes
+                                Changes
                               </button>
                             </NavLink>
                             <NavLink to={`list/${event.id}`}>
@@ -387,8 +380,7 @@ function MyEvents() {
                                       }
                                       className="btn btn-danger"
                                     >
-                                     Unsubscribe
-
+                                      Unsubscribe
                                     </button>
                                   </div>
                                 </div>
