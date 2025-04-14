@@ -30,33 +30,16 @@ function Home() {
     "https://67ddbf11471aaaa742826b6e.mockapi.io/join"
   );
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-  };
-
   return (
     <div>
       {/* img  serch location and category  */}
-      <div className="position-relative ">
-        <img src={home} className="img-fluid" alt="Background" />
-        <div className="position-absolute w-70  top-40 start-50 translate-middle text-dark p-3 rounded">
-          <div className="row d-flex justify-content-center">
-            <div className="col-12 col-md-6 col-lg-4     d-flex justify-content-center">
-              <div className="custom-input  fs-2 rounded-1 px-5  text-center">
-                Your Event
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="position-absolute w-70  top-70 start-50 translate-middle text-dark p-3 rounded">
-          <form>
-            <div className="row ">
-              <div className="col-4  ">
+      {/* <div className="row d-flex justify-content-center border border-2">
+              <div className="col-5">
                 <div className="row">
                   <div className="col-12 input-group">
                     <input
                       type="text"
-                      className="form-control custom-input "
+                      className="form-control custom-input p-2"
                       onChange={(e) => setEventCategory(e.target.value)}
                       placeholder="Search Category..."
                     />
@@ -69,12 +52,12 @@ function Home() {
                   </div>
                 </div>
               </div>
-              <div className="col-4">
+              <div className="col-5">
                 <div className="row">
                   <div className="col-12 input-group">
                     <input
                       type="text"
-                      className="form-control custom-input"
+                      className="form-control custom-input p-2"
                       onChange={(e) => setSearchLocation(e.target.value)}
                       placeholder="Search Location..."
                     />
@@ -87,15 +70,38 @@ function Home() {
                   </div>
                 </div>
               </div>
-              <div className="col-4">
-                <button className="btn  custom-input" onClick={handleSearch}>
-                  Search
-                </button>
-              </div>
+      </div> */}
+      <div className="row justify-content-center mt-4">
+          {/* Search Category */}
+          <div className="col-10 col-md-5 mb-3 mb-md-0">
+            <div className="input-group custom-input-group">
+              <span className="input-group-text bg-transparent border-end-0">
+                <i className="bi bi-search text-muted"></i>
+              </span>
+              <input
+                type="text"
+                className="form-control custom-input border-start-0"
+                placeholder="Search Category..."
+                onChange={(e) => setEventCategory(e.target.value)}
+              />
             </div>
-          </form>
+          </div>
+
+          {/* Search Location */}
+          <div className="col-10 col-md-5">
+            <div className="input-group custom-input-group">
+              <span className="input-group-text bg-transparent border-end-0">
+                <i className="bi bi-search text-muted"></i>
+              </span>
+              <input
+                type="text"
+                className="form-control custom-input border-start-0"
+                placeholder="Search Location..."
+                onChange={(e) => setSearchLocation(e.target.value)}
+              />
+            </div>
+          </div>
         </div>
-      </div>
 
       {/* Category */}
 
@@ -114,7 +120,7 @@ function Home() {
 
               return (
                 <div
-                  className="col-5 border border-2 border-info rounded shadow col-lg-3 my-3 mx-2  pb-3 "
+                  className="col-5 bg-white border-custom rounded shadow col-lg-3 mx-3 my-3  pb-3 "
                   key={event.id}
                 >
                   <NavLink
@@ -135,7 +141,7 @@ function Home() {
                         />
                       </div>
 
-                      <div className="col-12 fw-medium text-truncate">
+                      <div className="col-12 mt-2 fw-medium text-truncate">
                         <i className="bi bi-bookmark-check-fill text-primary"></i>{" "}
                         {event.eventName},
                         <span className="fw-bold">

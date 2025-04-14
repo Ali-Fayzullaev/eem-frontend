@@ -23,34 +23,43 @@ body {
   height: auto;
 }
 
-/* custom input */
+/* Custom input group styling */
+.custom-input-group {
+  border: 2px solid #ced4da; /* Border for the entire input group */
+  border-radius: 8px; /* Rounded corners */
+  overflow: hidden; /* Ensures the inner elements respect the border-radius */
+  transition: border-color 0.3s ease; /* Smooth hover effect */
+}
 
+.custom-input-group:focus-within {
+  border-color: #0d6efd; /* Highlight border when focused */
+  box-shadow: 0 0 5px rgba(13, 110, 253, 0.25); /* Subtle focus shadow */
+}
+
+/* Custom input styling */
 .custom-input {
-  backdrop-filter: blur(3px);
-  background-color: rgba(255, 255, 255, 0.6);
-  padding: 12px;
-  font-size: 18px;
-  border-radius: 8px;
-  outline: none;
-  transition: 0.3s;
+  background: transparent; /* Transparent background */
+  border: none; /* Remove default border */
+  box-shadow: none; /* Remove default shadow */
+  outline: none; /* Remove default outline */
+  font-size: 1rem; /* Adjust font size */
+  color: #495057; /* Text color */
 }
 
-.custom-input:focus {
-  box-shadow: 0 0 10px rgba(255, 87, 34, 0.5);
-  backdrop-filter: blur(15px);
-  background-color: #fff;
-}
-.custom-input:hover {
-  backdrop-filter: blur(5px);
-  background-color: #fff;
+.custom-input::placeholder {
+  color: #adb5bd; /* Placeholder text color */
 }
 
-/* custom-img */
+/* Icon styling */
+.input-group-text {
+  padding: 0.5rem 0.75rem; /* Adjust padding */
+  color: #adb5bd; /* Icon color */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: color 0.3s ease; /* Smooth hover effect */
+}
 
-.custom-img {
-  width: 80%;
-  height: 80%;
-  object-fit: cover;
+.input-group-text:hover {
+  color: #0d6efd; /* Change icon color on hover */
 }
 
 /* loader && loaderErr*/
@@ -459,3 +468,117 @@ textarea:focus {
     height: 0;
   }
 }
+
+
+
+
+
+/* Umumiy konteyner */
+.admin-container {
+  display: flex;
+  min-height: 100vh;
+  background: #f5f7fa;
+  transition: all 0.3s ease;
+  
+}
+
+/* Sidebar */
+.admin-sidebar {
+  width: 250px;
+  background: #2c3e50;
+  color: white;
+  transition: transform 0.3s ease;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1000;
+}
+
+/* Kichik ekranlarda sidebar yashirin bo'lishi */
+@media (max-width: 768px) {
+  .admin-sidebar {
+    transform: translateX(-100%); /* Menyu chapdan chiqib ketadi */
+  }
+
+  .admin-sidebar.hidden {
+    transform: translateX(-100%); /* Yashirin holat */
+  }
+
+  .admin-container.menu-open .admin-sidebar {
+    transform: translateX(0); /* Menyu ochilganda ko'rinadi */
+  }
+}
+
+/* Mobile menu tugmasi */
+.mobile-menu-btn {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 1001;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Asosiy kontent */
+.admin-content {
+  margin-left: 250px; /* Desktopda sidebar joyi uchun */
+  width: 100%;
+  transition: margin-left 0.3s ease;
+}
+
+/* Mobile uchun kontent */
+@media (max-width: 768px) {
+  .admin-content {
+    margin-left: 0; /* Sidebar yo'qolganida chapdan joy tashlamaslik */
+  }
+}
+
+/* Sidebar navigatsiya tugmalari */
+.sidebar-nav {
+  padding: 10px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background: none;
+  border: none;
+  color: #ecf0f1;
+  padding: 12px 15px;
+  margin-bottom: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.nav-item:hover {
+  background: #34495e;
+}
+
+.nav-item.active {
+  background: #51D1C6;
+}
+
+.nav-icon {
+  margin-right: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.border-custom {
+  border: 2px solid #51D1C6;
+}
+
+

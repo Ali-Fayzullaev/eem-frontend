@@ -10,7 +10,7 @@ import DataChanges from "./components/DataChanges";
 import EventDetail from "./components/EventDetail";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute"
-
+import AdminDashboard from "./Layout/AdminLayout";
 
 // Создаем router вне компонента App для лучшей производительности
 const router = createBrowserRouter([
@@ -41,14 +41,6 @@ const router = createBrowserRouter([
         ) 
       },
       { 
-        path: "my-events/change/:idEvent", 
-        element: (
-          <ProtectedRoute>
-            <DataChanges />
-          </ProtectedRoute>
-        ) 
-      },
-      { 
         path: "my-events/list/:userList", 
         element: (
           <ProtectedRoute>
@@ -59,6 +51,16 @@ const router = createBrowserRouter([
       
     ],
   },
+  { path: "admin",
+     element: <AdminDashboard/>,
+     children: [
+      {
+        path: "ChangesDataAdmin/change/:idEvent",
+        element: <DataChanges />
+      }
+     ]
+    },
+
 ], {
   basename: import.meta.env.BASE_URL // Для корректной работы в поддиректориях
 });
