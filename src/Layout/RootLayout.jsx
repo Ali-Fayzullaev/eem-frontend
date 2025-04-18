@@ -66,13 +66,13 @@ function RootLayout() {
               >
                 Home
               </NavLink>
-              <NavLink
+              {/* <NavLink
                 to="/create"
                 className="text-decoration-none"
                 onClick={handleCloseMenu}
               >
                 Create
-              </NavLink>
+              </NavLink> */}
               <NavLink
                 to="/myEvents"
                 className="text-decoration-none"
@@ -109,9 +109,9 @@ function RootLayout() {
             <NavLink to="/" className="me-3 text-decoration-none">
               Home
             </NavLink>
-            <NavLink to="/create" className="me-3 text-decoration-none">
+            {/* <NavLink to="/create" className="me-3 text-decoration-none">
               Create
-            </NavLink>
+            </NavLink> */}
             <NavLink to="/myEvents" className="me-3 text-decoration-none">
               My Events
             </NavLink>

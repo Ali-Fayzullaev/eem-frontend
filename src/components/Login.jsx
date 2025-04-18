@@ -1,3 +1,4 @@
+//
 import toast from "react-hot-toast";
 import { useState } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
@@ -16,32 +17,164 @@ function Login() {
   // Получаем предыдущий путь для редиректа после входа
   const from = location.state?.from?.pathname || "/";
 
+  // login.jsx
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   const form = e.currentTarget;
+  
+  //   if (form.checkValidity() === false) {
+  //     e.stopPropagation();
+  //     setValidated(true);
+  //     toast.error("Please enter valid email and password.");
+  //     return;
+  //   }
+  
+  //   try {
+  //     setLoading(true);
+  //     setError("");
+  
+  //     if (email.toLowerCase() === 'admin1@gmail.com') {
+  //       if (currentUser.role !== 'admin') {
+  //         const validation = await authService.validateToken();
+  //         if (validation.success && validation.user?.role === 'admin') {
+  //           // Токенни янгилаш
+  //           await authService.refreshTokens(); 
+  //           // Янги токен билан фойдаланувчини қайта олиш
+  //           currentUser = authService.getCurrentUser(); 
+  //         } else {
+  //           throw new Error('Admin privileges not granted');
+  //         }
+  //       }
+  //       redirectPath = '/admin';
+  //     }
+
+  //     // 1. Выполняем вход
+  //     const result = await authService.login({ email, password });
+  //     console.log('Login result:', result);
+      
+  //     if (!result.success) {
+  //       throw new Error(result.error || "Authentication failed");
+  //     }
+  
+  //     // 2. Искусственная задержка для синхронизации состояния
+  //     await new Promise(resolve => setTimeout(resolve, 100));
+  
+  //     // 3. Получаем обновленные данные пользователя
+  //     const currentUser = authService.getCurrentUser();
+  //     console.log('Current user:', currentUser);
+      
+  //     if (!currentUser) {
+  //       throw new Error("Failed to retrieve user data");
+  //     }
+  
+  //     // 4. Определяем путь для перенаправления
+  //     let redirectPath = from || '/';
+      
+  //     // 5. Специальная обработка для админа
+  //     if (email.toLowerCase() === 'admin1@gmail.com') {
+  //       if (currentUser.role !== 'admin') {
+  //         // Если в токене нет роли админа, проверяем через сервер
+  //         const validation = await authService.validateToken();
+  //         if (!validation.success || validation.user?.role !== 'admin') {
+  //           throw new Error('Admin privileges not granted');
+  //         }
+  //         currentUser.role = 'admin'; // Обновляем роль из ответа сервера
+  //       }
+  //       redirectPath = '/admin';
+  //     }
+  
+  //     // 6. Перенаправляем пользователя
+  //     navigate(redirectPath, { 
+  //       replace: true,
+  //       state: { from: location }
+  //     });
+      
+  
+  //     toast.success("Login successful!");
+  
+  //   } catch (err) {
+  //     console.error('Login error:', err);
+  //     const errorMessage = err.message || "Login failed";
+  //     setError(errorMessage);
+  //     toast.error(errorMessage);
+  //     authService.logout();
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const form = e.currentTarget;
-
-    // Валидация формы
+  
     if (form.checkValidity() === false) {
       e.stopPropagation();
       setValidated(true);
       toast.error("Please enter valid email and password.");
       return;
     }
-
+  
     try {
       setLoading(true);
-      await authService.login({ email, password });
-
+      setError("");
+  
+      let currentUser = null; // currentUser ни бошланғич ҳолда инициализациялаш
+  
+      // 1. Выполняем вход
+      const result = await authService.login({ email, password });
+      console.log('Login result:', result);
+  
+      if (!result.success) {
+        throw new Error(result.error || "Authentication failed");
+      }
+  
+      // 2. Искусственная задержка для синхронизации состояния
+      await new Promise(resolve => setTimeout(resolve, 100));
+  
+      // 3. Получаем обновленные данные пользователя
+      currentUser = authService.getCurrentUser(); // currentUser ни янгилаш
+      console.log('Current user:', currentUser);
+  
+      if (!currentUser) {
+        throw new Error("Failed to retrieve user data");
+      }
+  
+      // 4. Определяем путь для перенаправления
+      let redirectPath = from || '/';
+  
+      // 5. Специальная обработка для админа
+      if (email.toLowerCase() === 'admin1@gmail.com') {
+        if (currentUser.role !== 'admin') {
+          const validation = await authService.validateToken();
+          if (validation.success && validation.user?.role === 'admin') {
+            // Токенни янгилаш
+            await authService.refreshTokens();
+            currentUser = authService.getCurrentUser(); // Янги токен билан фойдаланувчини қайта олиш
+          } else {
+            throw new Error('Admin privileges not granted');
+          }
+        }
+        redirectPath = '/admin';
+      }
+  
+      // 6. Перенаправляем пользователя
+      navigate(redirectPath, {
+        replace: true,
+        state: { from: location }
+      });
+  
       toast.success("Login successful!");
-      navigate(from, { replace: true }); 
+  
     } catch (err) {
-      setError(err.response?.data?.message || "Login failed");
-      toast.error(err.response?.data?.message || "Login failed");
+      console.error('Login error:', err);
+      const errorMessage = err.message || "Login failed";
+      setError(errorMessage);
+      toast.error(errorMessage);
+      authService.logout();
     } finally {
       setLoading(false);
     }
   };
-
   return (
     <div className="container h-100 align-content-center">
       <div className="row d-flex justify-content-center">
@@ -62,8 +195,6 @@ function Login() {
                 style={{ maxHeight: "80px", objectFit: "cover" }}
               />
             </div>
-
-           
 
             <div className="mb-3">
               <label htmlFor="email" className="form-label">

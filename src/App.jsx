@@ -1,3 +1,5 @@
+//App.jsx
+
 import "./App.css";
 import Login from "./components/Login";
 import Home from "./pages/Home";
@@ -9,60 +11,66 @@ import RootLayout from "./Layout/RootLayout";
 import DataChanges from "./components/DataChanges";
 import EventDetail from "./components/EventDetail";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { ProtectedRoute } from "./components/ProtectedRoute"
+import { ProtectedRoute } from "./components/ProtectedRoute";
 import AdminDashboard from "./Layout/AdminLayout";
+import HomeAdmin from "./pages/HomeAdmin";
 
-// Создаем router вне компонента App для лучшей производительности
 const router = createBrowserRouter([
   {
     path: "/",
     element: <RootLayout />,
     children: [
-      { index: true, element: <Home /> },
+      { path: "/", element: <Home /> },
       { path: "login", element: <Login /> },
       { path: "signup", element: <Signup /> },
       { path: ":id", element: <EventDetail /> },
       
       // Защищенные маршруты
-      { 
-        path: "create", 
+      {
+        path: "create",
         element: (
           <ProtectedRoute>
             <CreateEvent />
           </ProtectedRoute>
-        ) 
+        ),
       },
-      { 
-        path: "myEvents", 
+      {
+        path: "myEvents",
         element: (
           <ProtectedRoute>
             <MyEvents />
           </ProtectedRoute>
-        ) 
+        ),
       },
-      { 
-        path: "my-events/list/:userList", 
-        element: (
-          <ProtectedRoute>
-            <SubscribersList />
-          </ProtectedRoute>
-        ) 
-      },
-      
     ],
   },
-  { path: "admin",
-     element: <AdminDashboard/>,
-     children: [
-      {
-        path: "ChangesDataAdmin/change/:idEvent",
-        element: <DataChanges />
-      }
-     ]
-    },
-
+  {
+    path: "admin",
+    element: (
+      <ProtectedRoute adminOnly={true}>
+        <AdminDashboard />
+      </ProtectedRoute>
+    )
+  },
+  // Отдельные админ-страницы без сайдбара
+  {
+    path: "admin/change/:idEvent",
+    element: (
+      <ProtectedRoute adminOnly={true}>
+        <DataChanges fullPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "admin/list/:userList",
+    element: (
+      <ProtectedRoute adminOnly={true}>
+        <SubscribersList fullPage />
+      </ProtectedRoute>
+    ),
+  }
 ], {
-  basename: import.meta.env.BASE_URL // Для корректной работы в поддиректориях
+  basename: import.meta.env.BASE_URL,
 });
 
 function App() {

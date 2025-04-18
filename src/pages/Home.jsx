@@ -72,42 +72,41 @@ function Home() {
               </div>
       </div> */}
       <div className="row justify-content-center mt-4">
-          {/* Search Category */}
-          <div className="col-10 col-md-5 mb-3 mb-md-0">
-            <div className="input-group custom-input-group">
-              <span className="input-group-text bg-transparent border-end-0">
-                <i className="bi bi-search text-muted"></i>
-              </span>
-              <input
-                type="text"
-                className="form-control custom-input border-start-0"
-                placeholder="Search Category..."
-                onChange={(e) => setEventCategory(e.target.value)}
-              />
-            </div>
-          </div>
-
-          {/* Search Location */}
-          <div className="col-10 col-md-5">
-            <div className="input-group custom-input-group">
-              <span className="input-group-text bg-transparent border-end-0">
-                <i className="bi bi-search text-muted"></i>
-              </span>
-              <input
-                type="text"
-                className="form-control custom-input border-start-0"
-                placeholder="Search Location..."
-                onChange={(e) => setSearchLocation(e.target.value)}
-              />
-            </div>
+        {/* Search Category */}
+        <div className="col-10 col-md-5 mb-3 mb-md-0">
+          <div className="input-group custom-input-group">
+            <span className="input-group-text bg-transparent border-end-0">
+              <i className="bi bi-search text-muted"></i>
+            </span>
+            <input
+              type="text"
+              className="form-control custom-input border-start-0"
+              placeholder="Search Category..."
+              onChange={(e) => setEventCategory(e.target.value)}
+            />
           </div>
         </div>
+
+        {/* Search Location */}
+        <div className="col-10 col-md-5">
+          <div className="input-group custom-input-group">
+            <span className="input-group-text bg-transparent border-end-0">
+              <i className="bi bi-search text-muted"></i>
+            </span>
+            <input
+              type="text"
+              className="form-control custom-input border-start-0"
+              placeholder="Search Location..."
+              onChange={(e) => setSearchLocation(e.target.value)}
+            />
+          </div>
+        </div>
+      </div>
 
       {/* Category */}
 
       <div className="container  my-3">
-        <p className=" fw-medium h5">Browse By Category</p>
-
+        <p className="fw-medium h5">Browse By Category</p>
         {loading && <div className="loader"></div>}
         {error && <div className="loaderErr"></div>}
         <div className="row d-flex justify-content-center ">

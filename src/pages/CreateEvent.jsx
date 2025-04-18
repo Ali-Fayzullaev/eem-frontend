@@ -490,7 +490,7 @@ function CreateEvent() {
                 <div className="col-6 ">
                   <NavLink
                     className="d-grid  link-offset-2 link-underline link-underline-opacity-0"
-                    to="/"
+                    to="/admin"
                   >
                     {" "}
                     <button type="button" className="btn btn-danger rounded-0">

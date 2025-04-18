@@ -120,7 +120,7 @@ function DataChanges() {
       setTimeout(() => {
         setLoading(false); // выключаем состояние загрузки после завершения запроса
         toast.success("Event updated successfully!");
-        navigate("/myEvents");
+        navigate("/admin");
       }, 1000);
     } catch (err) {
       setLoading(false);
@@ -146,10 +146,10 @@ function DataChanges() {
   };
 
   return (
-    <div>
+    <div className="container">
       {/* create event  */}
-      <div className=" text-info h2 mt-2">Edit Event Details</div>
-      <div className="container my-3 border border-2 border-info rounded-0 py-2 pt-4">
+      <div className=" text-info h2 my-4">Edit Event Details</div>
+      <div className="container my-3 rounded-4 pb-4 mb-5 border border-2 border-info rounded-0 py-2 pt-4">
         <form
           noValidate
           className={`needs-validation ${validated ? "was-validated" : ""}`}
@@ -447,7 +447,7 @@ function DataChanges() {
                 <div className="col-6 d-grid">
                   <NavLink
                     className="d-grid  link-offset-2 link-underline link-underline-opacity-0"
-                    to="/myEvents"
+                    to="/admin"
                   >
                     {" "}
                     <button type="button" className="btn btn-danger rounded-0">

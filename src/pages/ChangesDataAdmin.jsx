@@ -192,12 +192,12 @@ function ChangesDataAdmin() {
                                 </div>
                                 </div>
                                 <div className="d-flex gap-2">
-                                <NavLink to={`changesDataAdmin/change/${event.id}`}>
+                                <NavLink to={`/admin/change/${event.id}`}>
                                     <button className="btn btn-info mt-2 text-white">
                                          Changes
                                     </button>
                                 </NavLink>
-                                <NavLink to={`list/${event.id}`}>
+                                <NavLink to={`/admin/list/${event.id}`}>
                                     <button className="btn btn-warning mt-2 text-white">
                                     Participants
                                     </button>

@@ -16,10 +16,10 @@ function Signup() {
   const [validated, setValidated] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
+  const [error, setError] = useState(null);
   // Экземпляр axios
   const axiosInstance = axios.create({
-    baseURL: "http://localhost:8080/api/v1/auth", // Замените на реальный URL
+    baseURL: "http://localhost:8080/api/v1/auth", 
   });
 
   // Обработка изменения полей формы
@@ -29,45 +29,119 @@ function Signup() {
   };
 
   // Обработка отправки формы
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   const form = e.currentTarget;
+
+  //   if (form.checkValidity() === false) {
+  //     e.stopPropagation();
+  //     setValidated(true);
+  //     toast.error("Please fill in all required fields.");
+  //     return;
+  //   }
+
+  //   try {
+  //     setLoading(true);
+
+  //     // Отправка данных на сервер
+  //     const response = await axiosInstance.post("/register", formData);
+
+  //     // Очистка формы
+  //     setFormData({
+  //       email: "",
+  //       password: "",
+  //       firstName: "",
+  //       lastName: "",
+  //       username: "",
+  //     });
+
+  //     // Уведомление об успехе
+  //     toast.success(response.statusText || "Registration successful!");
+
+  //     // Перенаправление на страницу входа
+  //     navigate("/login");
+  //   } catch (err) {
+  //     toast.error(err.response?.data?.message || "Something went wrong. Please try again.");
+  //     console.error(err);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const form = e.currentTarget;
-
+  
+    // Form validation
     if (form.checkValidity() === false) {
       e.stopPropagation();
       setValidated(true);
-      toast.error("Please fill in all required fields.");
+      toast.error("Please fill in all required fields correctly.");
       return;
     }
-
+  
     try {
       setLoading(true);
-
-      // Отправка данных на сервер
-      const response = await axiosInstance.post("/register", formData); // Исправлено на /register
-
-      // Очистка формы
-      setFormData({
-        email: "",
-        password: "",
-        firstName: "",
-        lastName: "",
-        username: "",
+      
+      // Clear any previous errors
+      setError(null);
+  
+      // Send data to server with timeout
+      const response = await axiosInstance.post("/register", formData, {
+        timeout: 10000 // 10 second timeout
       });
-
-      // Уведомление об успехе
-      toast.success(response.statusText || "Registration successful!");
-
-      // Перенаправление на страницу входа
-      navigate("/login");
+  
+      // Check for successful response (2xx status)
+      if (response.status >= 200 && response.status < 300) {
+        // Reset form
+        setFormData({
+          email: "",
+          password: "",
+          firstName: "",
+          lastName: "",
+          username: "",
+        });
+        setValidated(false);
+  
+        // Show success message
+        toast.success("Registration successful! You can now login.");
+  
+        // Redirect to login
+        navigate("/login", { replace: true });
+      } else {
+        // Handle non-2xx responses
+        throw new Error(response.statusText || "Registration failed");
+      }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Something went wrong. Please try again.");
-      console.error(err);
+      let errorMessage = "Something went wrong. Please try again.";
+  
+      // Handle different error cases
+      if (err.code === "ERR_NETWORK") {
+        errorMessage = "Cannot connect to server. Please check your internet connection.";
+      } else if (err.code === "ECONNABORTED") {
+        errorMessage = "Request timeout. Please try again.";
+      } else if (err.response) {
+        // Server responded with error status (4xx, 5xx)
+        errorMessage = err.response.data?.message || 
+                      err.response.statusText || 
+                      "Registration failed";
+        
+        // Handle specific status codes
+        if (err.response.status === 409) {
+          errorMessage = "User with this email already exists.";
+        } else if (err.response.status === 400) {
+          errorMessage = "Invalid registration data. Please check your inputs.";
+        }
+      }
+  
+      // Set error state and show toast
+      setError(errorMessage);
+      toast.error(errorMessage);
+      console.error("Registration error:", err);
     } finally {
       setLoading(false);
     }
   };
-
   return (
     <div className="container h-100 w-100">
       <div className="row d-flex justify-content-center">

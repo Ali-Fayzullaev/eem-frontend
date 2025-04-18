@@ -3,16 +3,14 @@ import HomeAdmin from '../pages/HomeAdmin';
 import SettingsUser from '../pages/SettingsUser';
 import CreateEventAdmin from '../pages/CreateEventAdmin';
 import ChangesDataAdmin from '../pages/ChangesDataAdmin';
-import { BiHome, BiUser, 	BiPlus, BiMenu, BiCog } from 'react-icons/bi';
-import { Outlet } from 'react-router-dom';
-// import { CiCirclePlus } from "react-icons/ci";
+import { BiHome, BiUser, BiPlus, BiMenu, BiCog } from 'react-icons/bi';
+import { Outlet, useLocation } from 'react-router-dom';
 
-
-
-function AdminLayout() {
+function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('home');
   const [isMobile, setIsMobile] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false); 
+  const [menuOpen, setMenuOpen] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -20,6 +18,13 @@ function AdminLayout() {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  // Синхронизируем активный таб с URL
+  useEffect(() => {
+    const path = location.pathname.split('/').pop();
+    if (path === 'admin') setActiveTab('home');
+    else if (['users', 'create', 'changes'].includes(path)) setActiveTab(path);
+  }, [location]);
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
@@ -51,7 +56,7 @@ function AdminLayout() {
               className={`nav-item ${activeTab === tab.id ? 'active' : ''}`}
               onClick={() => {
                 setActiveTab(tab.id);
-                if (isMobile) setMenuOpen(false); 
+                if (isMobile) setMenuOpen(false);
               }}
             >
               <div className="nav-icon">{tab.icon}</div>
@@ -70,4 +75,4 @@ function AdminLayout() {
   );
 }
 
-export default AdminLayout;
+export default AdminDashboard;
