@@ -1,167 +1,3 @@
-
-// // ProtectedRoute.jsx
-// import { useLocation, Navigate, useNavigate } from 'react-router-dom';
-// import { useState, useEffect } from 'react';
-// import { authService } from '../api/authService';
-// import { toast } from 'react-toastify';
-// import { SessionTimer } from './SessionTimer'; // We'll create this component
-
-// export const ProtectedRoute = ({ children, adminOnly = false }) => {
-//   const location = useLocation();
-//   const navigate = useNavigate();
-//   const [isLoading, setIsLoading] = useState(true);
-//   const [user, setUser] = useState(null);
-//   const [showRefreshModal, setShowRefreshModal] = useState(false);
-//   const [remainingTime, setRemainingTime] = useState(null);
-
-//   const updateRemainingTime = (accessToken) => {
-//     if (!accessToken) return;
-    
-//     const payload = JSON.parse(atob(accessToken.split('.')[1]));
-//     const expiresAt = payload.exp * 1000;
-//     const now = Date.now();
-//     setRemainingTime(Math.max(0, expiresAt - now));
-//   };
-
-//   const handleRefreshSession = async (extend) => {
-//     try {
-//       if (extend) {
-//         const refreshResult = await authService.refreshTokens();
-//         if (!refreshResult.success) throw new Error('Refresh failed');
-        
-//         const validation = await authService.validateToken();
-//         if (!validation.success) throw new Error('Validation failed');
-        
-//         setUser(validation.user);
-//         updateRemainingTime(authService.getAccessToken());
-//         toast.success("Session extended for 15 more minutes");
-//       } else {
-//         throw new Error('User declined session extension');
-//       }
-//     } catch (err) {
-//       authService.logout();
-//       navigate('/login', { 
-//         state: { 
-//           from: location,
-//           error: 'Session expired. Please login again.' 
-//         }, 
-//         replace: true 
-//       });
-//     } finally {
-//       setShowRefreshModal(false);
-//     }
-//   };
-
-//   useEffect(() => {
-//     const checkAuth = async () => {
-//       try {
-//         console.log('Checking authentication...');
-//         const currentUser = await authService.getCurrentUserWithRefresh();
-//         console.log('Current user:', currentUser);
-  
-//         if (!currentUser) {
-//           throw new Error('Not authenticated');
-//         }
-  
-//         if (adminOnly && currentUser.role !== 'admin') {
-//           throw new Error('Admin access required');
-//         }
-  
-//         setUser(currentUser);
-//         updateRemainingTime(authService.getAccessToken());
-  
-//         // Token expiration check
-//         const accessToken = authService.getAccessToken();
-//         if (accessToken) {
-//           const payload = JSON.parse(atob(accessToken.split('.')[1]));
-//           const expiresIn = payload.exp * 1000 - Date.now();
-  
-//           // Show modal 1 minute before expiration
-//           const refreshTimeout = setTimeout(() => {
-//             setShowRefreshModal(true);
-//           }, expiresIn - 60000);
-  
-//           return () => clearTimeout(refreshTimeout);
-//         }
-//       } catch (err) {
-//         console.error('Authentication error:', err.message);
-//         authService.logout();
-//         navigate('/login', {
-//           state: {
-//             from: location,
-//             error: err.message
-//           },
-//           replace: true
-//         });
-//       } finally {
-//         setIsLoading(false);
-//       }
-//     };
-  
-//     checkAuth();
-    
-//     // Update remaining time every second
-//     const timerInterval = setInterval(() => {
-//       if (remainingTime > 0) {
-//         setRemainingTime(prev => prev - 1000);
-//       }
-//     }, 1000);
-    
-//     return () => clearInterval(timerInterval);
-//   }, [adminOnly, navigate, location, remainingTime]);
-
-//   if (isLoading) {
-//     return (
-//       <div className="d-flex justify-content-center align-items-center vh-100">
-//         <div className="spinner-border text-primary" role="status">
-//           <span className="visually-hidden">Loading...</span>
-//         </div>
-//       </div>
-//     );
-//   }
-
-//   if (!user) return null;
-
-//   return (
-//     <>
-//       <SessionTimer remainingTime={remainingTime} />
-//       {children}
-      
-//       {showRefreshModal && (
-//         <div className="modal show d-block" tabIndex="-1">
-//           <div className="modal-dialog">
-//             <div className="modal-content">
-//               <div className="modal-header">
-//                 <h5 className="modal-title">Session Expiring Soon</h5>
-//               </div>
-//               <div className="modal-body">
-//                 <p>Your session will expire in 1 minute. Would you like to extend it?</p>
-//               </div>
-//               <div className="modal-footer">
-//                 <button 
-//                   type="button" 
-//                   className="btn btn-secondary"
-//                   onClick={() => handleRefreshSession(false)}
-//                 >
-//                   Logout
-//                 </button>
-//                 <button 
-//                   type="button" 
-//                   className="btn btn-primary"
-//                   onClick={() => handleRefreshSession(true)}
-//                 >
-//                   Extend Session
-//                 </button>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       )}
-//     </>
-//   );
-// };
-
-
 // ProtectedRoute.jsx
 import { useLocation, Navigate, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
@@ -176,91 +12,89 @@ export const ProtectedRoute = ({ children, adminOnly = false }) => {
   const [user, setUser] = useState(null);
   const [showRefreshModal, setShowRefreshModal] = useState(false);
   const [remainingTime, setRemainingTime] = useState(null);
-  
-  // Используем ref для хранения таймеров
+
   const refreshTimeoutRef = useRef(null);
   const timerIntervalRef = useRef(null);
 
+  // Вақтни янгилаш функцияси
   const updateRemainingTime = () => {
     const accessToken = authService.getAccessToken();
     if (!accessToken) return;
-    
+  
     const payload = JSON.parse(atob(accessToken.split('.')[1]));
     const expiresAt = payload.exp * 1000;
     const now = Date.now();
-    setRemainingTime(Math.max(0, expiresAt - now));
+    const newRemaining = Math.max(0, expiresAt - now);
+  
+    console.log('Updating remaining time:', { expiresAt, now, newRemaining }); // Дебаг маълумоти
+  
+    setRemainingTime(newRemaining);
   };
 
+  // Сессияни узайтириш ёки чиқиш функцияси
   const handleRefreshSession = async (extend) => {
     try {
       if (extend) {
         const refreshResult = await authService.refreshTokens();
-        if (!refreshResult.success) throw new Error('Refresh failed');
-        
+        console.log('Refresh result:', refreshResult); // Debugging
+        if (!refreshResult.success) throw new Error('Token refresh failed');
         const validation = await authService.validateToken();
-        if (!validation.success) throw new Error('Validation failed');
-        
+        console.log('Validation result:', validation); // Debugging
+        if (!validation.success) throw new Error('Token validation failed');
         setUser(validation.user);
+        // Reset interval
+        clearInterval(timerIntervalRef.current);
         updateRemainingTime();
-        toast.success("Session extended for 15 more minutes");
+        timerIntervalRef.current = setInterval(updateRemainingTime, 1000);
+        toast.success("Сессия 15 минутга узайтирилди");
       } else {
-        throw new Error('User declined session extension');
+        throw new Error('Сессия тугатилди');
       }
     } catch (err) {
+      console.error('Session refresh error:', err.message); // Debugging
       authService.logout();
-      navigate('/login', { 
-        state: { 
-          from: location,
-          error: 'Session expired. Please login again.' 
-        }, 
-        replace: true 
+      navigate('/login', {
+        state: { from: location, error: err.message },
+        replace: true
       });
     } finally {
       setShowRefreshModal(false);
     }
   };
 
-  // Основной эффект для проверки аутентификации
+
+  // Асосий аутентификация текшируви
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        console.log('Checking authentication...');
         const currentUser = await authService.getCurrentUserWithRefresh();
-        console.log('Current user:', currentUser);
-
         if (!currentUser) throw new Error('Not authenticated');
-        if (adminOnly && currentUser.role !== 'admin') {
-          throw new Error('Admin access required');
+  
+        // Агар adminOnly=true ва фойдаланувчи админ/менежер бўлмаса
+        if (adminOnly && !["admin", "manager"].includes(currentUser.role)) {
+          navigate('/user'); // Ушбу йўлга ўтказиб юбориш
+          return; // Кейинги кодни ишламаслик учун
         }
-
+  
         setUser(currentUser);
         updateRemainingTime();
 
-        // Очищаем предыдущие таймеры
-        if (refreshTimeoutRef.current) {
-          clearTimeout(refreshTimeoutRef.current);
-        }
+        // Олдинги таймерни тозалаш
+        if (refreshTimeoutRef.current) clearTimeout(refreshTimeoutRef.current);
 
         const accessToken = authService.getAccessToken();
         if (accessToken) {
           const payload = JSON.parse(atob(accessToken.split('.')[1]));
           const expiresIn = payload.exp * 1000 - Date.now();
 
-          // Устанавливаем новый таймаут
+          // 1 минут олдин модални кўрсатиш
           refreshTimeoutRef.current = setTimeout(() => {
             setShowRefreshModal(true);
           }, expiresIn - 60000);
         }
       } catch (err) {
-        console.error('Authentication error:', err.message);
         authService.logout();
-        navigate('/login', {
-          state: {
-            from: location,
-            error: err.message
-          },
-          replace: true
-        });
+        navigate('/login', { state: { from: location, error: err.message }, replace: true });
       } finally {
         setIsLoading(false);
       }
@@ -268,71 +102,66 @@ export const ProtectedRoute = ({ children, adminOnly = false }) => {
 
     checkAuth();
 
-    // Очистка при размонтировании
     return () => {
-      if (refreshTimeoutRef.current) {
-        clearTimeout(refreshTimeoutRef.current);
-      }
-      if (timerIntervalRef.current) {
-        clearInterval(timerIntervalRef.current);
-      }
+      clearTimeout(refreshTimeoutRef.current);
+      clearInterval(timerIntervalRef.current);
     };
   }, [adminOnly, navigate, location]);
 
-  // Эффект для обновления таймера
+  // Вақтни ҳар секундда янгилаш
   useEffect(() => {
-    timerIntervalRef.current = setInterval(() => {
-      updateRemainingTime();
-    }, 1000);
-
-    return () => {
-      if (timerIntervalRef.current) {
-        clearInterval(timerIntervalRef.current);
-      }
-    };
+    timerIntervalRef.current = setInterval(updateRemainingTime, 1000);
+    return () => clearInterval(timerIntervalRef.current);
   }, []);
 
+  // Модал кўрсатилганда автологаут таймери
+
+  useEffect(() => {
+    if (!showRefreshModal) return;
+    const autoLogoutTimeout = setTimeout(() => {
+      handleRefreshSession(false);
+    }, 60000); // 1 minute = 60000 ms
+    return () => clearTimeout(autoLogoutTimeout);
+  }, [showRefreshModal]);
+
   if (isLoading) {
-    return (
-      <div className="d-flex justify-content-center align-items-center vh-100">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-      </div>
-    );
+    return <div className="loading-spinner">loading...</div>;
   }
 
   if (!user) return null;
 
   return (
     <>
-      <SessionTimer remainingTime={remainingTime} />
+      {/* Вақтни экраннинг юқори оң тарфига кўрсатиш */}
+      <div>
+        <SessionTimer remainingTime={remainingTime} />
+      </div>
+
       {children}
-      
+
+      {/* Сессия узайтириш модали */}
       {showRefreshModal && (
         <div className="modal show d-block" tabIndex="-1">
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title">Session Expiring Soon</h5>
+                <h5 className="modal-title">As the session is about to end</h5>
               </div>
               <div className="modal-body">
-                <p>Your session will expire in 1 minute. Would you like to extend it?</p>
+                <p>The session will end in 1 minute. Would you like to extend it?</p>
               </div>
               <div className="modal-footer">
-                <button 
-                  type="button" 
-                  className="btn btn-secondary"
+                <button
+                  className="btn btn-danger"
                   onClick={() => handleRefreshSession(false)}
                 >
-                  Logout
+                  No, log out.
                 </button>
-                <button 
-                  type="button" 
-                  className="btn btn-primary"
+                <button
+                  className="btn btn-success"
                   onClick={() => handleRefreshSession(true)}
                 >
-                  Extend Session
+                  Yes, extend it.
                 </button>
               </div>
             </div>

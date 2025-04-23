@@ -1,5 +1,4 @@
-//App.jsx
-
+// // //App.jsx
 import "./App.css";
 import Login from "./components/Login";
 import Home from "./pages/Home";
@@ -13,19 +12,17 @@ import EventDetail from "./components/EventDetail";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import AdminDashboard from "./Layout/AdminLayout";
-import HomeAdmin from "./pages/HomeAdmin";
-
+import NotFoundPage from "./pages/NotFoundPage";
+import UserDashboard from "./Layout/UserLayout";
 const router = createBrowserRouter([
   {
     path: "/",
     element: <RootLayout />,
+    errorElement: <NotFoundPage />,
     children: [
       { path: "/", element: <Home /> },
-      { path: "login", element: <Login /> },
-      { path: "signup", element: <Signup /> },
       { path: ":id", element: <EventDetail /> },
-      
-      // Защищенные маршруты
+      { path: "*", element: <NotFoundPage /> },
       {
         path: "create",
         element: (
@@ -47,28 +44,40 @@ const router = createBrowserRouter([
   {
     path: "admin",
     element: (
-      <ProtectedRoute adminOnly={true}>
+      <ProtectedRoute adminOnly>
         <AdminDashboard />
       </ProtectedRoute>
-    )
+    ),
+    children: [
+      {
+        path: "change/:idEvent",
+        element: <DataChanges fullPage />,
+      },
+      {
+        path: "list/:userList",
+        element: <SubscribersList fullPage />,
+      },
+    ],
   },
-  // Отдельные админ-страницы без сайдбара
   {
-    path: "admin/change/:idEvent",
+    path: ":id",  // Remove the leading slash
+    element: <EventDetail fullPage />,
+  },
+  {
+    path: "user",
     element: (
-      <ProtectedRoute adminOnly={true}>
-        <DataChanges fullPage />
+      <ProtectedRoute>
+        <UserDashboard />
       </ProtectedRoute>
     ),
   },
   {
-    path: "admin/list/:userList",
-    element: (
-      <ProtectedRoute adminOnly={true}>
-        <SubscribersList fullPage />
-      </ProtectedRoute>
-    ),
-  }
+    path: "login",
+    element: <Login/>
+  },{ 
+    path: "signup",
+     element: <Signup />
+   },
 ], {
   basename: import.meta.env.BASE_URL,
 });

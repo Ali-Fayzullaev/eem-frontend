@@ -1,23 +1,17 @@
 //AdminDashboard.jsx;
 import { useState, useEffect } from "react";
 import HomeAdmin from "../pages/HomeAdmin";
-import SettingsUser from "../pages/SettingsUser";
-import CreateEventAdmin from "../pages/CreateEventAdmin";
-import ChangesDataAdmin from "../pages/ChangesDataAdmin";
 import { getTokenExpiration } from "../utils/jwt";
 import { authService } from "../api/authService";
 import {
   BiHome,
-  BiUser,
-  BiPlus,
   BiMenu,
-  BiCog,
   BiLogOut,
 } from "react-icons/bi";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import iconEventManagement from "../assets/iconEvent.png";
 
-function AdminDashboard() {
+function UserDashboard() {
   const [activeTab, setActiveTab] = useState("home");
   const [isMobile, setIsMobile] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -60,24 +54,6 @@ function AdminDashboard() {
       label: "All Events",
       icon: <BiHome size={20} />,
       content: <HomeAdmin />,
-    },
-    {
-      id: "users",
-      label: "Users",
-      icon: <BiUser size={20} />,
-      content: <SettingsUser />,
-    },
-    {
-      id: "create",
-      label: "Create",
-      icon: <BiPlus size={20} />,
-      content: <CreateEventAdmin />,
-    },
-    {
-      id: "changes",
-      label: "Event Settings",
-      icon: <BiCog size={20} />,
-      content: <ChangesDataAdmin />,
     },
   ];
 
@@ -143,7 +119,7 @@ function AdminDashboard() {
         </button>
       )}
 
-      {/* Sidebar */}
+
       {/* Sidebar */}
       <div className={`admin-sidebar ${isMobile && !menuOpen ? "hidden" : ""}`}>
         <div className="sidebar-logo">
@@ -238,4 +214,4 @@ function AdminDashboard() {
   );
 }
 
-export default AdminDashboard;
+export default UserDashboard;

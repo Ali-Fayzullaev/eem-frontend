@@ -13,5 +13,14 @@ export default defineConfig({
   base: '/', // Убедитесь, что base указан правильно
   server: {
     historyApiFallback: true,
+  },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
+      }
+    }
   }
 })

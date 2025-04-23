@@ -5,7 +5,182 @@ body {
   font-family: "Poppins", sans-serif;
 }
 
+/* custom bg font img for login and sugnup */
+.bg-img {
+  background-image: url('./assets/fon_login.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* custom-colors css */
+
+/* Сердце иконаси стилари */
+/* Сердце иконаси стилари */
+.heart-checkbox {
+  display: none; /* Чекбоксни кўрсатмаймиз */
+}
+
+.heart-label {
+  cursor: pointer;
+  position: relative;
+  display: inline-block;
+}
+
+.heart-icon {
+  font-size: 1.5rem;
+  color: #fff; /* Бошланғич ранг (ок) */
+  transition: color 0.3s ease;
+  position: relative;
+  z-index: 1;
+}
+
+/* Чекбокс белгилангандаги ранг (кизил) */
+.heart-checkbox:checked + .heart-label .heart-icon {
+  color: #ff0000;
+}
+
+/* Пульсиратиш анимацияси */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Сердценинг орқасига доира (фон) */
+.heart-label::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  z-index: 0;
+  transition: background-color 0.3s ease;
+}
+.heart-checkbox:not(:checked) + .heart-label .heart-icon {
+  color: #000000; /* Ок ранг */
+}
 /* Size  */
+
+
+
+
+
+
+
+
+
+
+
+/* General styles for input group */
+.custom-input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+  height: 40px; /* Fixed height for consistency */
+  border-radius: 8px;
+  background-color: #f8f9fa;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.custom-input-group:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+/* Icon styling */
+.input-group-text {
+  background-color: transparent;
+  border: none;
+  color: #6c757d;
+  font-size: 0.9rem;
+  padding: 0 12px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.custom-input-group:hover .input-group-text {
+  color: #495057;
+  transform: scale(1.05);
+}
+
+/* Input field styling */
+.custom-input {
+  background-color: transparent;
+  border: none;
+  color: #343a40;
+  font-size: 0.85rem;
+  padding: 0 12px 0 0;
+  height: 100%;
+  width: 100%;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.custom-input:focus {
+  outline: none;
+  box-shadow: none;
+  background-color: #fff;
+}
+
+/* Placeholder styling */
+.custom-input::placeholder {
+  color: #adb5bd;
+  font-style: italic;
+  font-size: 0.8rem;
+}
+
+/* Container adjustments */
+.search-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.search-row {
+  gap: 15px;
+}
+
+@media (max-width: 768px) {
+  .search-row {
+    gap: 10px;
+  }
+  
+  .custom-input-group {
+    height: 36px;
+  }
+}
+
+
+
+
+
+
+
+
+
+.fs-10 {
+  font-size: 12px;
+}
+
+.fs-8 {
+  font-size: 10px;
+}
 
 .top-40 {
   top: 30%;
@@ -477,7 +652,7 @@ textarea:focus {
 .admin-container {
   display: flex;
   min-height: 100vh;
-  background: #f5f7fa;
+  background: #F5F6FA;
   transition: all 0.3s ease;
   
 }
@@ -485,14 +660,15 @@ textarea:focus {
 /* Sidebar */
 .admin-sidebar {
   width: 250px;
-  background: #2c3e50;
-  color: white;
+  background: #ffffff;
+  color: rgb(0, 0, 0);
   transition: transform 0.3s ease;
   position: fixed;
   top: 0;
   bottom: 0;
   left: 0;
   z-index: 1000;
+  
 }
 
 /* Kichik ekranlarda sidebar yashirin bo'lishi */
@@ -534,6 +710,7 @@ textarea:focus {
   margin-left: 250px; /* Desktopda sidebar joyi uchun */
   width: 100%;
   transition: margin-left 0.3s ease;
+  
 }
 
 /* Mobile uchun kontent */
@@ -554,21 +731,24 @@ textarea:focus {
   width: 100%;
   background: none;
   border: none;
-  color: #ecf0f1;
+  color: #202224;
   padding: 12px 15px;
   margin-bottom: 5px;
   border-radius: 5px;
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
+  font-family: 'Nunito Sans', sans-serif;
 }
 
 .nav-item:hover {
-  background: #34495e;
+  background: #799ced;
+  color: #fff;
 }
 
 .nav-item.active {
-  background: #51D1C6;
+  background: #4880FF;
+  color: #ffffff;
 }
 
 .nav-icon {
@@ -582,8 +762,46 @@ textarea:focus {
 }
 .bg-custom {
   background: #51D1C6;
+  color: white;
 }
 
+.bg-custom:hover {
+  background: #419c9c;
+  color: white;
+}
+
+
+
+/* CSS для session timer */
+.session-timer {
+  position: fixed;
+  bottom: 10px;  /* Изменено с top на bottom */
+  right: 10px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.session-timer .badge {
+  font-size: 0.85rem;
+  padding: 0.5em 0.75em;
+  border-radius: 0.375rem;
+  transition: background-color 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Добавил тень для лучшей видимости */
+}
+
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.modal.show {
+  display: block;
+  background-color: rgba(0, 0, 0, 0.5);
+}
 
 .modal-backdrop {
   position: fixed;
@@ -607,3 +825,95 @@ textarea:focus {
   outline: 0;
 }
 
+/* form select    */
+
+.form-select {
+  padding: 10px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+}
+
+.form-select option {
+  padding: 8px;
+  margin: 4px 0;
+}
+
+.form-select option:checked {
+  background-color: #3498db;
+  color: white;
+}
+
+
+/* Modal for Logout Confirmation  CSS*/
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modall {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modal-actions {
+  margin-top: 20px;
+}
+
+.btn-confirm {
+  background: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-cancel {
+  background: #ccc;
+  color: black;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+
+/* logogtip in sidebar CSS  */
+.admin-sidebar {
+  display: flex;
+  flex-direction: column; /* Логотип ва навигация вертикал бўлиши керак */
+  width: 250px; /* Sidebar кенглиги */
+  height: 100vh; /* Экран баландлиги бўйича */
+}
+
+.sidebar-logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid #ffffff; /* Логотипдан кейин чизиқ */
+}
+
+.sidebar-logo img {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+}
+
+.sidebar-nav {
+  flex: 1; /* Қолган жойни эгаллайди */
+  overflow-y: auto; /* Агар контент кўп бўлса скролл бўлади */
+}

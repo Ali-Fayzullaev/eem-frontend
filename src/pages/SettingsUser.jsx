@@ -4,58 +4,55 @@ import { toast } from "react-toastify";
 import useFetch from "../hook/useFetchh";
 
 function SettingsUser() {
-  const { 
-    data: tableData, 
-    loading, 
-    error, 
-    refetch 
-  } = useFetch(`http://localhost:8080/api/v1/admin/users`);
-
-
+  const { data: tableData, loading, error, refetch } = useFetch(`/users`);
   const [editingUser, setEditingUser] = useState(null);
   const [editFormData, setEditFormData] = useState({
-    nameUser: "",
-    idNumber: "",
+    firstName: "",
+    lastName: "",
+    username: "",
     email: "",
+    password: "Aa12345+",
+    roles: [],
   });
 
-  const axiosInstance = axios.create({
-  baseURL: "http://localhost:8080/api/v1/admin",
-});
+  const adminAxios = axios.create({
+    baseURL: "http://localhost:8080/api/v1/admin",
+  });
 
-// Хар бир суровга токен қўшадиган интерсептор
-axiosInstance.interceptors.request.use((config) => {
-  const token = localStorage.getItem('accessToken');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+  // Хар бир суровга токен қўшадиган интерсептор
+  adminAxios.interceptors.request.use((config) => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  });
 
-  // delete users
+  // Учириш функцияси
   const handleDeleteUser = async (userId) => {
     try {
-      await axiosInstance.delete(`/users/${userId}`);
-      console.log(axiosInstance);
-      toast.success("User delete");
+      await adminAxios.delete(`/users/${userId}`);
+      toast.success("User has been deleted");
       refetch();
     } catch (err) {
-      console.error(err);
-      toast.error("Error");
+      toast.error(err.response?.data?.message || "Error :(");
     }
   };
 
-  // edit user
+  // Таҳрирлашни бошлаш
   const handleEditClick = (user) => {
     setEditingUser(user);
     setEditFormData({
-      nameUser: user.nameUser,
-      idNumber: user.idNumber,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      username: user.username,
       email: user.email,
+      password: "Aa12345+",
+      roles: user.roles,
     });
   };
 
-  // change form
+  // Формани ўзгартириш
   const handleEditFormChange = (e) => {
     const { name, value } = e.target;
     setEditFormData({
@@ -64,16 +61,58 @@ axiosInstance.interceptors.request.use((config) => {
     });
   };
 
-  // refetch
+  // Валидация
+  const validateForm = () => {
+    const errors = [];
+    if (!editFormData.firstName || editFormData.firstName.length < 3) {
+      errors.push("The name must be at least 3 characters long");
+    }
+    if (!editFormData.lastName || editFormData.lastName.length < 3) {
+      errors.push("The last name must be at least 3 characters long");
+    }
+    if (!editFormData.username) {
+      errors.push("Username is required");
+    }
+    if (
+      !editFormData.email ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editFormData.email)
+    ) {
+      errors.push("Incorrect email format");
+    }
+    if (!Array.isArray(editFormData.roles) || editFormData.roles.length === 0) {
+      errors.push("Role not selected");
+    }
+    return errors;
+  };
+
+  // Янгилаш
   const handleUpdateUser = async () => {
+    const errors = validateForm();
+    if (errors.length > 0) {
+      errors.forEach((error) => toast.error(error));
+      return;
+    }
+
     try {
-      await axiosInstance.put(`/users/${editingUser.id}`, editFormData);
-      toast.success("User updated successfully!");
+      const payload = {
+        firstName: editFormData.firstName,
+        lastName: editFormData.lastName,
+        username: editFormData.username,
+        email: editFormData.email,
+        password: editFormData.password,
+        roles: editFormData.roles.map((role) => ({
+          id: role.id,
+          name: role.name,
+        })),
+      };
+
+      await adminAxios.put(`/users/${editingUser.id}`, payload);
+      toast.success("Updated successfully!");
       setEditingUser(null);
       refetch();
     } catch (err) {
-      console.error(err);
-      toast.error(err);
+      console.error("Error:", err);
+      toast.error(err.response?.data?.message || "Server error");
     }
   };
 
@@ -81,10 +120,9 @@ axiosInstance.interceptors.request.use((config) => {
     <div className="p-5">
       <div className="card shadow-sm border-0">
         <div className="card-header bg-white border-0 pt-3">
-          <h5 className="fw-bold mb-0">Пользователи системы</h5>
+          <h5 className="fw-bold mb-0">Users</h5>
           <p className="text-muted small mb-0">
-            Всего записей:{" "}
-            {tableData && tableData.length ? tableData.length : "0"}
+            Total: {tableData?.length || 0}
           </p>
         </div>
 
@@ -93,61 +131,55 @@ axiosInstance.interceptors.request.use((config) => {
             <table className="table table-hover align-middle mb-0">
               <thead className="table-light">
                 <tr>
-                  <th scope="col" style={{ width: "50px" }}>
-                    #
-                  </th>
-                  <th scope="col">Имя</th>
-                  <th scope="col">ID</th>
-                  <th scope="col">Email</th>
-                  <th scope="col" className="text-end">
-                    Действия
+                  <th width="50">№</th>
+                  <th>Name</th>
+                  <th>Lastname</th>
+                  <th>Username</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th width="120" className="text-end">
+                    Edit
                   </th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan="5" className="text-center py-4">
-                      Update...
+                    <td colSpan="6" className="text-center py-4">
+                      Loading...
                     </td>
                   </tr>
                 ) : error ? (
                   <tr>
-                    <td colSpan="5" className="text-center text-danger py-4">
-                      Error...
+                    <td colSpan="6" className="text-center text-danger py-4">
+                      Error: {error.message}
                     </td>
                   </tr>
                 ) : (
-                  tableData &&
-                  tableData.map((user) => (
+                  tableData?.map((user, index) => (
                     <tr key={user.id}>
-                      <th scope="row" className="fw-normal text-center">
-                        {user.id}
-                      </th>
-                      <td>{user.nameUser}</td>
+                      <td>{index + 1}</td>
+                      <td>{user.firstName}</td>
+                      <td>{user.lastName}</td>
+                      <td>{user.username}</td>
+                      <td>{user.email}</td>
                       <td>
-                        <a
-                          href={`https://example.com/${user.id}`}
-                          className="text-decoration-none"
-                        >
-                          {user.idNumber}
-                        </a>
+                        {user
+                          ? user.roles.includes("ROLE_ADMIN")
+                            ? <span class="badge fw-medium text-white text-bg-warning">admin</span>
+                            : user.roles.includes("ROLE_MANAGER")
+                            ? <span class="badge fw-medium text-white text-bg-info">manager</span>
+                            : <span class="badge fw-medium text-white text-bg-secondary">user</span>
+                          : ""}
                       </td>
-                      <td>
-                        <span className="">{user.email}</span>
-                      </td>
+
                       <td className="text-end">
-                        {/* Таҳрирлаш тугмаси */}
                         <button
-                          className="btn btn-sm btn-outline-primary me-1"
-                          data-bs-toggle="modal"
-                          data-bs-target="#editUserModal"
+                          className="btn btn-sm btn-outline-primary me-lg-1 my-1 my-md-0"
                           onClick={() => handleEditClick(user)}
                         >
                           <i className="bi bi-pencil"></i>
                         </button>
-
-                        {/* Учириш тугмаси */}
                         <button
                           className="btn btn-sm btn-outline-danger"
                           data-bs-toggle="modal"
@@ -161,17 +193,13 @@ axiosInstance.interceptors.request.use((config) => {
                           className="modal fade"
                           id={`deleteModal-${user.id}`}
                           tabIndex="-1"
-                          aria-labelledby="deleteModalLabel"
                           aria-hidden="true"
                         >
                           <div className="modal-dialog">
                             <div className="modal-content">
                               <div className="modal-header">
-                                <h5
-                                  className="modal-title"
-                                  id="deleteModalLabel"
-                                >
-                                  Delete user {user.nameUser}
+                                <h5 className="modal-title">
+                                  Delete {user.firstName}
                                 </h5>
                                 <button
                                   type="button"
@@ -181,8 +209,10 @@ axiosInstance.interceptors.request.use((config) => {
                                 ></button>
                               </div>
                               <div className="modal-body">
-                                Do you really want to Delete user
-                                <strong> {user.nameUser}</strong>{" "}
+                                <p>
+                                  Do you really want to delete it?
+                                  <strong> {user.firstName}</strong>
+                                </p>
                               </div>
                               <div className="modal-footer">
                                 <button
@@ -190,7 +220,7 @@ axiosInstance.interceptors.request.use((config) => {
                                   className="btn btn-secondary"
                                   data-bs-dismiss="modal"
                                 >
-                                  Cansel
+                                  Cancel
                                 </button>
                                 <button
                                   type="button"
@@ -215,89 +245,109 @@ axiosInstance.interceptors.request.use((config) => {
       </div>
 
       {/* Таҳрирлаш модали */}
-      <div
-        className="modal fade"
-        id="editUserModal"
-        tabIndex="-1"
-        aria-labelledby="editUserModalLabel"
-        aria-hidden="true"
-      >
-        <div className="modal-dialog">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title" id="editUserModalLabel">
-                Фойдаланувчини таҳрирлаш
-              </h5>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
-            </div>
-            <div className="modal-body">
-              <form>
+      {editingUser && (
+        <div
+          className="modal fade show"
+          id="editUserModal"
+          style={{ display: "block" }}
+          tabIndex="-1"
+          aria-modal="true"
+          role="dialog"
+        >
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Edit user</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setEditingUser(null)}
+                ></button>
+              </div>
+              <div className="modal-body">
                 <div className="mb-3">
-                  <label htmlFor="nameUser" className="form-label">
-                    Name
-                  </label>
+                  <label className="form-label">FirstName</label>
                   <input
                     type="text"
                     className="form-control"
-                    id="nameUser"
-                    name="nameUser"
-                    value={editFormData.nameUser}
+                    name="firstName"
+                    value={editFormData.firstName}
                     onChange={handleEditFormChange}
                   />
                 </div>
                 <div className="mb-3">
-                  <label htmlFor="idNumber" className="form-label">
-                    Фамилияси
-                  </label>
+                  <label className="form-label">Lastname</label>
                   <input
                     type="text"
                     className="form-control"
-                    id="idNumber"
-                    name="idNumber"
-                    value={editFormData.idNumber}
+                    name="lastName"
+                    value={editFormData.lastName}
                     onChange={handleEditFormChange}
                   />
                 </div>
                 <div className="mb-3">
-                  <label htmlFor="email" className="form-label">
-                    Email
-                  </label>
+                  <label className="form-label">Username</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="username"
+                    value={editFormData.username}
+                    onChange={handleEditFormChange}
+                  />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">Email</label>
                   <input
                     type="email"
                     className="form-control"
-                    id="email"
                     name="email"
                     value={editFormData.email}
                     onChange={handleEditFormChange}
                   />
                 </div>
-              </form>
-            </div>
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
-                Бекор қилиш
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary"
-                data-bs-dismiss="modal"
-                onClick={handleUpdateUser}
-              >
-                Сақлаш
-              </button>
+                <div className="mb-3 ">
+                  <label className="form-label ">Roles</label>
+                  <select
+                    className="form-select"
+                    value={editFormData.roles.map((r) => r.id)}
+                    onChange={(e) =>
+                      setEditFormData({
+                        ...editFormData,
+                        roles: Array.from(e.target.selectedOptions).map(
+                          (opt) => ({
+                            id: parseInt(opt.value),
+                            name: opt.text,
+                          })
+                        ),
+                      })
+                    }
+                  >
+                    <option value="1">ROLE_USER</option>
+                    <option value="2">ROLE_MANAGER</option>
+                    <option value="3">ROLE_ADMIN</option>
+                  </select>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setEditingUser(null)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="btn bg-custom "
+                  onClick={handleUpdateUser}
+                >
+                  Save
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

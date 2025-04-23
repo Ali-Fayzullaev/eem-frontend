@@ -97,7 +97,7 @@ export const authService = {
         data: response.data,
         user: {
           email: credentials.email,
-          role: credentials.email === 'admin1@gmail.com' ? 'admin' : 'user'
+          role: credentials.email === 'admin1@gmail.com' ? 'admin' : 'user' || "manager",
         }
       };
     } catch (error) {
@@ -139,19 +139,22 @@ export const authService = {
 
  
   refreshTokens: async () => {
-
     try {
       const refreshToken = secureStorage.getItem('refreshToken');
       if (!refreshToken) throw new Error('No refresh token available');
-      
+  
+      console.log('Refreshing tokens with:', { refreshToken }); // Дебаг маълумоти
+  
       const response = await axios.post(`${API_URL}/refresh`, { refreshToken });
+      console.log('Refresh response:', response.data); // Дебаг маълумоти
+  
       if (!response.data?.accessToken || !response.data?.refreshToken) {
         throw new Error('Invalid token refresh response');
       }
-      
+  
       secureStorage.setItem('accessToken', response.data.accessToken);
       secureStorage.setItem('refreshToken', response.data.refreshToken);
-      
+  
       return {
         success: true,
         accessToken: response.data.accessToken,
@@ -165,7 +168,6 @@ export const authService = {
       };
     }
   },
-  
 
  
   getCurrentUserWithRefresh: async () => {
@@ -208,29 +210,36 @@ export const authService = {
   getCurrentUser: () => {
     const token = secureStorage.getItem('accessToken');
     if (!token) return null;
+
+    
   
     try {
       const payload = token.split('.')[1];
       const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
-      const { sub, email, roles, exp } = JSON.parse(decoded);
-  
+      const { sub, email, roles, exp, username } = JSON.parse(decoded);
+    
+      let role = 'user'; // По умолчанию роль — "user"
+      if (Array.isArray(roles)) {
+        if (roles.includes('ROLE_ADMIN')) {
+          role = 'admin';
+        } else if (roles.includes('ROLE_MANAGER')) {
+          role = 'manager';
+        }
+      }
+    
       if (exp && Date.now() >= exp * 1000) {
         secureStorage.removeItem('accessToken');
         return null;
       }
-  
-      // Ролни текшириш
-      const isAdmin = Array.isArray(roles)
-        ? roles.includes('ADMIN') || roles.includes('ROLE_ADMIN')
-        : false;
-  
+    
       return {
         id: sub,
-        email: email || 'unknown', // Email мавжудлигини таъминлаш
-        role: isAdmin ? 'admin' : 'user'
+        email: email || 'unknown',
+        username: username,
+        role: role
       };
     } catch (e) {
-      console.error("Token decoding error:", e);
+      console.error("Ошибка декодирования токена:", e);
       secureStorage.removeItem('accessToken');
       return null;
     }

@@ -66,20 +66,7 @@ function RootLayout() {
               >
                 Home
               </NavLink>
-              {/* <NavLink
-                to="/create"
-                className="text-decoration-none"
-                onClick={handleCloseMenu}
-              >
-                Create
-              </NavLink> */}
-              <NavLink
-                to="/myEvents"
-                className="text-decoration-none"
-                onClick={handleCloseMenu}
-              >
-                My Events
-              </NavLink>
+              
               <NavLink
                 to="/login"
                 className="btn btn-success text-white text-decoration-none"
@@ -87,20 +74,6 @@ function RootLayout() {
               >
                 Sign in
               </NavLink>
-
-              {/* Toggle theme (remains inactive for now) */}
-              {/* <div className="d-inline-flex justify-content-center align-items-center gap-3 mt-3">
-                <span onClick={toggleMode}>
-                  <i
-                    className={`bi text-warning ${showLight ? "" : "visually-hidden"} bi-sun-fill fs-3`}
-                  ></i>
-                </span>
-                <span onClick={toggleMode}>
-                  <i
-                    className={`bi text-warning ${showLight ? "visually-hidden" : ""} bi-moon-stars-fill fs-4`}
-                  ></i>
-                </span>
-              </div> */}
             </div>
           </div>
 
@@ -109,27 +82,13 @@ function RootLayout() {
             <NavLink to="/" className="me-3 text-decoration-none">
               Home
             </NavLink>
-            {/* <NavLink to="/create" className="me-3 text-decoration-none">
-              Create
-            </NavLink> */}
-            <NavLink to="/myEvents" className="me-3 text-decoration-none">
-              My Events
-            </NavLink>
+           
             <NavLink
               to="/login"
               className="btn btn-success text-white me-4 text-decoration-none"
             >
               Sign in
             </NavLink>
-            {/*Toggle for dark light */}
-            {/* <span className="d-inline-flex justify-content-center align-items-center">
-              <span onClick={toggleMode}>
-                <i className={`bi text-warning ${showLight ? "" : "visually-hidden"} bi-sun-fill fs-3`}></i>
-              </span>
-              <span onClick={toggleMode}>
-                <i className={`bi text-warning ${showLight ? "visually-hidden" : ""} bi-moon-stars-fill fs-4`}></i>
-              </span>
-            </span> */}
           </nav>
         </div>
       </header>
