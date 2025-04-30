@@ -118,27 +118,30 @@ function SettingsUser() {
 
   return (
     <div className="p-5">
+      {" "}
       <div className="card shadow-sm border-0">
+        {" "}
         <div className="card-header bg-white border-0 pt-3">
-          <h5 className="fw-bold mb-0">Users</h5>
+          {" "}
+          <h5 className="fw-bold mb-0">Пайдаланушылар</h5>{" "}
           <p className="text-muted small mb-0">
-            Total: {tableData?.length || 0}
-          </p>
+            {" "}
+            Барлығы: {tableData?.length || 0}{" "}
+          </p>{" "}
         </div>
-
         <div className="card-body p-0">
           <div className="table-responsive">
             <table className="table table-hover align-middle mb-0">
               <thead className="table-light">
                 <tr>
                   <th width="50">№</th>
-                  <th>Name</th>
-                  <th>Lastname</th>
-                  <th>Username</th>
-                  <th>Email</th>
-                  <th>Role</th>
+                  <th>Аты</th>
+                  <th>Тегі</th>
+                  <th>Пайдаланушы аты</th>
+                  <th>Электрондық пошта</th>
+                  <th>Рөлі</th>
                   <th width="120" className="text-end">
-                    Edit
+                    Өңдеу
                   </th>
                 </tr>
               </thead>
@@ -146,13 +149,13 @@ function SettingsUser() {
                 {loading ? (
                   <tr>
                     <td colSpan="6" className="text-center py-4">
-                      Loading...
+                      Жүктелуде...
                     </td>
                   </tr>
                 ) : error ? (
                   <tr>
                     <td colSpan="6" className="text-center text-danger py-4">
-                      Error: {error.message}
+                      Қате: {error.message}
                     </td>
                   </tr>
                 ) : (
@@ -164,13 +167,23 @@ function SettingsUser() {
                       <td>{user.username}</td>
                       <td>{user.email}</td>
                       <td>
-                        {user
-                          ? user.roles.includes("ROLE_ADMIN")
-                            ? <span class="badge fw-medium text-white text-bg-warning">admin</span>
-                            : user.roles.includes("ROLE_MANAGER")
-                            ? <span class="badge fw-medium text-white text-bg-info">manager</span>
-                            : <span class="badge fw-medium text-white text-bg-secondary">user</span>
-                          : ""}
+                        {user ? (
+                          user.roles.includes("ROLE_ADMIN") ? (
+                            <span class="badge fw-medium text-white text-bg-warning">
+                              админ
+                            </span>
+                          ) : user.roles.includes("ROLE_MANAGER") ? (
+                            <span class="badge fw-medium text-white text-bg-info">
+                              менеджер
+                            </span>
+                          ) : (
+                            <span class="badge fw-medium text-white text-bg-secondary">
+                              пайдаланушы
+                            </span>
+                          )
+                        ) : (
+                          ""
+                        )}
                       </td>
 
                       <td className="text-end">
@@ -188,7 +201,7 @@ function SettingsUser() {
                           <i className="bi bi-trash"></i>
                         </button>
 
-                        {/* Учириш модали */}
+                        {/* Жою модальдық терезесі */}
                         <div
                           className="modal fade"
                           id={`deleteModal-${user.id}`}
@@ -199,18 +212,18 @@ function SettingsUser() {
                             <div className="modal-content">
                               <div className="modal-header">
                                 <h5 className="modal-title">
-                                  Delete {user.firstName}
+                                  {user.firstName} жою
                                 </h5>
                                 <button
                                   type="button"
                                   className="btn-close"
                                   data-bs-dismiss="modal"
-                                  aria-label="Close"
+                                  aria-label="Жабу"
                                 ></button>
                               </div>
                               <div className="modal-body">
                                 <p>
-                                  Do you really want to delete it?
+                                  Сіз шынымен жойғыңыз келе ме?
                                   <strong> {user.firstName}</strong>
                                 </p>
                               </div>
@@ -220,7 +233,7 @@ function SettingsUser() {
                                   className="btn btn-secondary"
                                   data-bs-dismiss="modal"
                                 >
-                                  Cancel
+                                  Бас тарту
                                 </button>
                                 <button
                                   type="button"
@@ -228,7 +241,7 @@ function SettingsUser() {
                                   data-bs-dismiss="modal"
                                   onClick={() => handleDeleteUser(user.id)}
                                 >
-                                  Delete
+                                  Жою
                                 </button>
                               </div>
                             </div>
@@ -243,8 +256,7 @@ function SettingsUser() {
           </div>
         </div>
       </div>
-
-      {/* Таҳрирлаш модали */}
+      {/* Өңдеу модальдық терезесі */}
       {editingUser && (
         <div
           className="modal fade show"
@@ -257,7 +269,7 @@ function SettingsUser() {
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title">Edit user</h5>
+                <h5 className="modal-title">Пайдаланушыны өңдеу</h5>
                 <button
                   type="button"
                   className="btn-close"
@@ -266,7 +278,7 @@ function SettingsUser() {
               </div>
               <div className="modal-body">
                 <div className="mb-3">
-                  <label className="form-label">FirstName</label>
+                  <label className="form-label">Аты</label>
                   <input
                     type="text"
                     className="form-control"
@@ -276,7 +288,7 @@ function SettingsUser() {
                   />
                 </div>
                 <div className="mb-3">
-                  <label className="form-label">Lastname</label>
+                  <label className="form-label">Тегі</label>
                   <input
                     type="text"
                     className="form-control"
@@ -286,7 +298,7 @@ function SettingsUser() {
                   />
                 </div>
                 <div className="mb-3">
-                  <label className="form-label">Username</label>
+                  <label className="form-label">Пайдаланушы аты</label>
                   <input
                     type="text"
                     className="form-control"
@@ -296,7 +308,7 @@ function SettingsUser() {
                   />
                 </div>
                 <div className="mb-3">
-                  <label className="form-label">Email</label>
+                  <label className="form-label">Электрондық пошта</label>
                   <input
                     type="email"
                     className="form-control"
@@ -306,7 +318,7 @@ function SettingsUser() {
                   />
                 </div>
                 <div className="mb-3 ">
-                  <label className="form-label ">Roles</label>
+                  <label className="form-label ">Рөлдері</label>
                   <select
                     className="form-select"
                     value={editFormData.roles.map((r) => r.id)}
@@ -322,9 +334,9 @@ function SettingsUser() {
                       })
                     }
                   >
-                    <option value="1">ROLE_USER</option>
-                    <option value="2">ROLE_MANAGER</option>
-                    <option value="3">ROLE_ADMIN</option>
+                    <option value="1">Пайдаланушы</option>
+                    <option value="2">Менеджер</option>
+                    <option value="3">Админ</option>
                   </select>
                 </div>
               </div>
@@ -334,14 +346,14 @@ function SettingsUser() {
                   className="btn btn-secondary"
                   onClick={() => setEditingUser(null)}
                 >
-                  Cancel
+                  Бас тарту
                 </button>
                 <button
                   type="button"
-                  className="btn bg-custom "
+                  className="btn bg-primary text-white "
                   onClick={handleUpdateUser}
                 >
-                  Save
+                  Сақтау
                 </button>
               </div>
             </div>

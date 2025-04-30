@@ -1,18 +1,21 @@
 //AdminDashboard.jsx;
 import { useState, useEffect } from "react";
-import HomeAdmin from "../pages/HomeAdmin";
-import SettingsUser from "../pages/SettingsUser";
-import CreateEventAdmin from "../pages/CreateEventAdmin";
-import ChangesDataAdmin from "../pages/ChangesDataAdmin";
+import { Link } from "react-router-dom";
 import { getTokenExpiration } from "../utils/jwt";
 import { authService } from "../api/authService";
 import {
-  BiHome,
   BiUser,
   BiPlus,
   BiMenu,
   BiCog,
   BiLogOut,
+  BiHeart,
+  BiBell,
+  BiSolidCalendar,
+  BiBarChartAlt2,
+  BiClipboard
+
+  
 } from "react-icons/bi";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import iconEventManagement from "../assets/iconEvent.png";
@@ -53,42 +56,6 @@ function AdminDashboard() {
     setIsModalOpen(false); // Close the modal without logging out
   };
 
-  // Regular tabs (excluding Logout)
-  const tabs = [
-    {
-      id: "home",
-      label: "All Events",
-      icon: <BiHome size={20} />,
-      content: <HomeAdmin />,
-    },
-    {
-      id: "users",
-      label: "Users",
-      icon: <BiUser size={20} />,
-      content: <SettingsUser />,
-    },
-    {
-      id: "create",
-      label: "Create",
-      icon: <BiPlus size={20} />,
-      content: <CreateEventAdmin />,
-    },
-    {
-      id: "changes",
-      label: "Event Settings",
-      icon: <BiCog size={20} />,
-      content: <ChangesDataAdmin />,
-    },
-  ];
-
-  // Logout tab (separate from the main tabs)
-  const logoutTab = {
-    id: "logOut",
-    label: "Logout",
-    icon: <BiLogOut size={20} />,
-    action: handleLogout,
-  };
-
   const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
@@ -127,6 +94,76 @@ function AdminDashboard() {
     return () => clearInterval(timer);
   }, []);
 
+  const tabs = [
+    {
+      id: "statistics",
+      label: "Dashboard",
+      icon: <BiBarChartAlt2 size={20} />,
+      to: "/admin",
+    },
+    {
+      id: "allEvents",
+      label: "Барлық іс-шаралар",
+      icon: <BiClipboard size={20} />,
+      to: "/admin/events",
+    },
+    ...(currentUser?.role === "admin"
+      ? [
+          {
+            id: "users",
+            label: "Пайдаланушылар",
+            icon: <BiUser size={20} />,
+            to: "/admin/users",
+          },
+        ]
+      : []),
+    {
+      id: "create",
+      label: "Жаңа жасау",
+      icon: <BiPlus size={20} />,
+      to: "/admin/create",
+    },
+    {
+      id: "changes",
+      label: "Іс-шара параметрлері",
+      icon: <BiCog size={20} />,
+      to: "/admin/changes",
+    },
+    {
+      id: "subscribed",
+      label: "Жазылғандар",
+      icon: <BiBell size={20} />,
+      to: "/admin/subscribed",
+    },
+    {
+      id: "favourite",
+      label: "Таңдаулылар",
+      icon: <BiHeart size={20} />,
+      to: "/admin/favourite",
+    },
+    {
+      id: "calendar",
+      label: "Менің күнтізбем",
+      icon: <BiSolidCalendar size={20} />,
+      to: "/admin/calendar",
+    },
+    
+    // {
+    //   id: "map",
+    //   label: "Менің картам",
+    //   icon: <BiMap size={20} />,
+    //   to: "/admin/map",
+    // },
+  ];
+  
+  // Шығу бөлімі (негізгі бөлімнен бөлек)
+  const logoutTab = {
+    id: "logOut",
+    label: "Шығу",
+    icon: <BiLogOut size={20} />,
+    action: handleLogout,
+  };
+
   // Форматируем время (мм:сс)
   const minutes = Math.floor(remainingTime / 60000);
   const seconds = Math.floor((remainingTime % 60000) / 1000);
@@ -136,24 +173,26 @@ function AdminDashboard() {
     <div
       className={`admin-container ${isMobile && menuOpen ? "menu-open" : ""}`}
     >
-      {/* Mobile menu button */}
+      {/* Мобильдік мәзір түймесі */}
       {isMobile && (
         <button className="mobile-menu-btn" onClick={toggleMenu}>
           <BiMenu size={24} />
         </button>
       )}
 
-      {/* Sidebar */}
-      {/* Sidebar */}
+      {/* Бүйірлік мәзір */}
       <div className={`admin-sidebar ${isMobile && !menuOpen ? "hidden" : ""}`}>
         <div className="sidebar-logo">
           <img src={iconEventManagement} alt="Logo" />
         </div>
         <div className="sidebar-nav">
           {tabs.map((tab) => (
-            <button
+            <Link
               key={tab.id}
-              className={`nav-item ${activeTab === tab.id ? "active" : ""}`}
+              to={tab.to} // Сілтеме арқылы өту
+              className={`nav-item  link-underline link-underline-opacity-0 ${
+                activeTab === tab.id ? "active" : ""
+              }`}
               onClick={() => {
                 setActiveTab(tab.id);
                 if (isMobile) setMenuOpen(false);
@@ -161,11 +200,11 @@ function AdminDashboard() {
             >
               <div className="nav-icon">{tab.icon}</div>
               <span>{tab.label}</span>
-            </button>
+            </Link>
           ))}
         </div>
 
-        {/* Logout Tab (Separate Section) */}
+        {/* Шығу бөлімі (Бөлек секция) */}
         <div className="sidebar-logout mx-3 mb-2">
           <button className="nav-item logout-item" onClick={logoutTab.action}>
             <div className="nav-icon">{logoutTab.icon}</div>
@@ -174,7 +213,7 @@ function AdminDashboard() {
         </div>
       </div>
 
-      {/* Основное содержимое */}
+      {/* Негізгі мазмұн */}
       <div className="admin-content">
         <div className="row">
           <div className="col-12 bg-white  py-1 d-flex justify-content-end align-items-center ">
@@ -206,10 +245,10 @@ function AdminDashboard() {
             </div>
             <div className="row p-0 m-0 ">
               <div className="col-12 p-0 m-0 fw-medium fs-8">
-                {currentUser ? currentUser.id : "Loading..."}
+                {currentUser ? currentUser.id : "Жүктелуде..."}
               </div>
               <div className="col-12 p-0 m-0 fw-lighter fs-8">
-                {currentUser ? currentUser.role : "Loading..."}
+                {currentUser ? currentUser.role : "Жүктелуде..."}
               </div>
             </div>
           </div>
@@ -218,17 +257,17 @@ function AdminDashboard() {
         <Outlet />
       </div>
 
-      {/* Modal for Logout Confirmation */}
+      {/* Шығуға растау терезесі */}
       {isModalOpen && (
         <div className="modal-overlay">
           <div className="modall">
-            <h3>Are you sure you want to log out?</h3>
+            <h3>Шынымен шығғыңыз келе ме?</h3>
             <div className="modal-actions">
               <button className="btn-confirm" onClick={confirmLogout}>
-                Yes
+                Иә
               </button>
               <button className="btn-cancel" onClick={cancelLogout}>
-                Cancel
+                Болдырмау
               </button>
             </div>
           </div>

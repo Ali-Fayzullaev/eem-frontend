@@ -1,6 +1,6 @@
 // import  react
 import { useState, useEffect } from "react";
-
+import "../Admin.css";
 // import from axios
 import axios from "axios";
 // import hooks
@@ -13,8 +13,21 @@ import { ToastContainer } from "react-toastify";
 
 // import from RRD
 import { NavLink } from "react-router-dom";
+import Modal from "react-modal";
 
 function MyEvents() {
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState("");
+
+  const openModal = (imageUrl) => {
+    setSelectedImage(imageUrl);
+    setModalIsOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+  };
+
   const axiosInstance = axios.create({
     baseURL: "https://67ddbf11471aaaa742826b6e.mockapi.io/",
   });
@@ -28,11 +41,6 @@ function MyEvents() {
   } = useFetch(`https://67ddbf11471aaaa742826b6e.mockapi.io/events`);
 
   const [subscribedEvents, setSubscribedEvents] = useState([]);
-  const [showTwo, setShowTwo] = useState(true);
-
-  const handleOpenCloseAccordionTwo = () => {
-    setShowTwo(!showTwo);
-  };
 
   const fetchSubscribedEvents = async () => {
     try {
@@ -75,155 +83,188 @@ function MyEvents() {
     <div className="container m-0 p-0">
       <Toaster />
       <ToastContainer />
-      <h2 className="text-center my-4 text-info">📅 My Events</h2>
-      <div className="accordion" id="accordionPanelsStayOpenExample">
+      {subscribedEvents && (
+        <div className="container py-2">
+          {/* Тақырып және статистика */}
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h5 className="m-0 text-primary">
+              <i className="bi bi-bookmark-check-fill me-2"></i>
+              Менің жазылған іс-шараларым
+            </h5>
+            <span className="badge bg-primary rounded-pill">
+              {subscribedEvents.length} іс-шара
+            </span>
+          </div>
 
-        {/* accordion two */}
-        {subscribedEvents && (
-          <div className="accordion-item my-custom-accordion">
-            <h2 className="accordion-header">
-              <button
-                className="accordion-button "
-                onClick={handleOpenCloseAccordionTwo}
-                type="button"
-                aria-expanded="true"
-                aria-controls="panelsStayOpen-collapseTwo"
-              >
-                <div className="w-100 h-100 my-2 text-start d-flex justify-content-between align-items-center">
-                  <span className="fw-medium fs-5">My Registered Events </span>
-                  {subscribedEvents.length ? (
-                    <span className="fw-bolder mx-3">
-                      You have:
-                      <code className="fs-5 ">
-                        {" "}
-                        {loading && (
-                          <div className="loaderEvents d-inline-block"></div>
-                        )}{" "}
-                        {subscribedEvents.length}{" "}
-                      </code>{" "}
-                      events
-                    </span>
-                  ) : (
-                    "You are not subscribed to any events 😢"
-                  )}
-                </div>
-
-                <p></p>
-              </button>
-            </h2>
-            <div
-              id="panelsStayOpen-collapseTwo"
-              className={`accordion-collapse scrollable ${
-                showTwo ? "show" : ""
-              }`}
-            >
-              <div className="accordion-body ">
-                {loading && <div className="loader"></div>}
-                {error && <div className="loaderErr"></div>}
-                <div className="row">
-                  {subscribedEvents.map((event) => (
-                    <div key={event.id} className="col-md-4">
-                      <div className="card mb-3 ">
-                        {event.imgUrl && (
+          {/* Іс-шаралар тізімі */}
+          <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+            {subscribedEvents.map((event) => (
+              <div key={event.id} className="col">
+                <div className="card h-100 border-0 shadow-sm hover-shadow">
+                  {/* Іс-шара суреті */}
+                  <div className="position-relative">
+                    <div className="event-card-img">
+                      {event.imgUrl && (
+                        <div className="image-card">
                           <img
                             src={event.imgUrl}
-                            className=" img-fluid rounded-3"
-                            style={{
-                              width: "100%",
-                              height: "250px",
-                              objectFit: "cover",
-                            }}
+                            className="event-image"
                             alt={event.eventName}
                           />
-                        )}
-                        <div className="card-body">
-                          <h5 className="card-title">{event.eventName}</h5>
-                          <p className="card-text">
-                            📅 {event.startDate} | ⏰ {event.startTime}
-                          </p>
-                          <div className="d-flex gap-2">
-                            <button
-                              onClick={() => addToCalendar(event)}
-                              className="btn btn-success"
-                            >
-                              📆 Add to Calendar
-                            </button>
+                          <button
+                            onClick={() => openModal(event.imgUrl)}
+                            className="view-btn"
+                          >
+                            <i class="	bi bi-aspect-ratio fs-4"></i>
+                          </button>
 
-                            <button
-                              data-bs-toggle="modal"
-                              data-bs-target={`#modal-${event.id}`}
-                              className="btn btn-danger"
-                            >
-                              Unsubscribe
-                            </button>
-
-                            <div
-                              className="modal fade"
-                              key={event.id}
-                              id={`modal-${event.id}`}
-                              tabIndex="-1"
-                              data-bs-backdrop="false"
-                              aria-labelledby="unsubscribeModalLabel"
-                              aria-hidden="true"
-                            >
-                              <div className="modal-dialog">
-                                <div className="modal-content">
-                                  <div className="modal-header">
-                                    <h1
-                                      className="modal-title fs-5"
-                                      id="unsubscribeModalLabel"
-                                    >
-                                      Unsubscribe from Event
-                                    </h1>
-                                    <button
-                                      type="button"
-                                      className="btn-close"
-                                      data-bs-dismiss="modal"
-                                      aria-label="Close"
-                                    ></button>
-                                  </div>
-                                  <div className="modal-body">
-                                    <p>
-                                      Do you really want to unsubscribe from the
-                                      event <strong>{event.eventName}</strong>?
-                                    </p>
-                                    <p>
-                                      📅 {event.startDate} | ⏰{" "}
-                                      {event.startTime}
-                                    </p>
-                                  </div>
-                                  <div className="modal-footer">
-                                    <button
-                                      type="button"
-                                      className="btn btn-secondary"
-                                      data-bs-dismiss="modal"
-                                    >
-                                      Close
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        handleUnsubscribe(event.id)
-                                      }
-                                      className="btn btn-danger"
-                                    >
-                                      Unsubscribe
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>
+                          <Modal
+                            isOpen={modalIsOpen}
+                            onRequestClose={closeModal}
+                            contentLabel="Kattalashtirilgan surat"
+                            className="custom-modal-img"
+                            overlayClassName="modal-overlay-img"
+                          >
+                            <div className="modal-content-img">
+                              <img
+                                src={selectedImage}
+                                alt="Kattalashtirilgan"
+                                className="modal-image"
+                              />
+                              <button
+                                onClick={closeModal}
+                                className="close-btn"
+                              >
+                                ×
+                              </button>
                             </div>
-                          </div>
+                          </Modal>
+                        </div>
+                      )}
+                    </div>
+                    <span className="position-absolute top-0 end-0 bg-danger text-white px-2 py-1 small">
+                      {event.eventType}
+                    </span>
+                  </div>
+
+                  {/* Карточка мазмұны */}
+                  <div className="card-body p-3">
+                    <h6 className="card-title mb-1 text-truncate">
+                      {event.eventName}
+                    </h6>
+                    <p className="small text-muted mb-2">
+                      <i className="bi bi-geo-alt"></i> {event.location} •{" "}
+                      {event.language}
+                    </p>
+
+                    <div className="d-flex justify-content-between small mb-2">
+                      <span>
+                        <i className="bi bi-calendar"></i> {event.startDate}
+                      </span>
+                      <span>
+                        <i className="bi bi-clock"></i> {event.startTime}
+                      </span>
+                    </div>
+
+                    {/* Әрекеттер батырмалары */}
+                    <div className="d-flex gap-2">
+                      <button
+                        className="btn btn-sm btn-outline-primary flex-grow-1"
+                        onClick={() => addToCalendar(event)}
+                      >
+                        <i className="bi bi-calendar-plus"></i> Қосу
+                      </button>
+                      <button
+                        className="btn btn-sm btn-outline-danger"
+                        data-bs-toggle="modal"
+                        data-bs-target={`#unsubscribeModal-${event.id}`}
+                      >
+                        <i className="bi bi-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Жазылудан бас тарту модальды терезесі */}
+                <div
+                  className="modal fade"
+                  id={`unsubscribeModal-${event.id}`}
+                  tabIndex="-1"
+                >
+                  <div className="modal-dialog modal-dialog-centered">
+                    <div className="modal-content">
+                      <div className="modal-header bg-light">
+                        <h5 className="modal-title text-danger">
+                          <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                          Жазылудан бас тартуды растау
+                        </h5>
+                        <button
+                          type="button"
+                          className="btn-close"
+                          data-bs-dismiss="modal"
+                        ></button>
+                      </div>
+                      <div className="modal-body">
+                        <p>
+                          Сіз шынымен осы іс-шарадан жазылудан бас тартқыңыз
+                          келе ме?
+                        </p>
+                        <div className="alert alert-light">
+                          <h6 className="mb-1">{event.eventName}</h6>
+                          <small className="text-muted">
+                            <i className="bi bi-calendar"></i> {event.startDate}{" "}
+                            • {event.startTime}
+                            <br />
+                            <i className="bi bi-geo-alt"></i> {event.location}
+                          </small>
                         </div>
                       </div>
+                      <div className="modal-footer">
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          data-bs-dismiss="modal"
+                        >
+                          Болдырмау
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-danger"
+                          onClick={() => handleUnsubscribe(event.id)}
+                          data-bs-dismiss="modal"
+                        >
+                          <i className="bi bi-trash me-1"></i> Жазылудан бас
+                          тарту
+                        </button>
+                      </div>
                     </div>
-                  ))}
+                  </div>
                 </div>
               </div>
-            </div>
+            ))}
           </div>
-        )}
-      </div>
+
+          {/* Бос күй */}
+          {subscribedEvents.length === 0 && (
+            <div className="text-center py-5">
+              <i
+                className="bi bi-calendar-x text-muted"
+                style={{ fontSize: "3rem" }}
+              ></i>
+              <h5 className="mt-3">Жазылған іс-шаралар жоқ</h5>
+              <p className="text-muted">
+                Сіз әлі ешбір іс-шараға жазылмағансыз
+              </p>
+              <button className="btn btn-primary">
+                <NavLink className="link-offset-2 link-underline link-underline-opacity-0 text-white">
+                  {" "}
+                  <i className="bi bi-plus-circle"></i> Іс-шараларды қарау
+                </NavLink>
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

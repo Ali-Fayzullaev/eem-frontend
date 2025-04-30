@@ -147,8 +147,8 @@ function DataChanges() {
 
   return (
     <div className="container">
-      {/* create event  */}
-      <div className=" text-info h2 my-4">Edit Event Details</div>
+      {/* Іс-шараны өңдеу */}
+      <div className="text-info h2 my-4">Іс-шараны өңдеу</div>
       <div className="container my-3 rounded-4 pb-4 mb-5 border border-2 border-info rounded-0 py-2 pt-4">
         <form
           noValidate
@@ -160,7 +160,7 @@ function DataChanges() {
               <div className="row">
                 <div className="col-6">
                   <label htmlFor="source-language" className="form-label">
-                    SOURCE LANGUAGE
+                    ТІЛ
                   </label>
                   <select
                     className="form-select mt-2 rounded-0"
@@ -170,18 +170,18 @@ function DataChanges() {
                     id="source-language"
                     required
                   >
-                    <option value="">Choose language</option>
-                    <option value="English">English</option>
-                    <option value="Russian">Russian</option>
-                    <option value="Kazakh">Kazakh</option>
+                    <option value="">Тілді таңдаңыз</option>
+                    <option value="English">Ағылшын</option>
+                    <option value="Russian">Орыс</option>
+                    <option value="Kazakh">Қазақ</option>
                   </select>
                   <div className="invalid-feedback">
-                    Please select a source language.
+                    Тілді таңдау міндетті.
                   </div>
                 </div>
                 <div className="col-6">
                   <label htmlFor="uploadPhotos" className="form-label">
-                    UPLOAD PHOTOS
+                    ФОТО СУРЕТ ЖҮКТЕУ
                   </label>
 
                   <input
@@ -193,13 +193,13 @@ function DataChanges() {
                     required
                   />
 
-                  <div className="invalid-feedback">Please upload a photo.</div>
+                  <div className="invalid-feedback">Фото сурет жүктеу міндетті.</div>
                   <button
                     onClick={handleUpload}
                     type="button"
                     className="btn btn-info text-white my-2 rounded-0 mb-2"
                   >
-                    Upload a photo
+                    Фото жүктеу
                   </button>
                 </div>
               </div>
@@ -209,7 +209,7 @@ function DataChanges() {
               <div className="row">
                 <div className="col-6 my-3">
                   <label htmlFor="event-name" className="form-label">
-                    EVENT NAME
+                    ІС-ШАРА АТАУЫ
                   </label>
                   <input
                     type="text"
@@ -218,16 +218,16 @@ function DataChanges() {
                     value={eventName}
                     id="event-name"
                     onChange={(e) => setEventName(e.target.value)}
-                    placeholder="Event name.."
+                    placeholder="Іс-шара атауы..."
                     required
                   />
                   <div className="invalid-feedback">
-                    Event name is required.
+                    Іс-шара атауы міндетті.
                   </div>
                 </div>
                 <div className="col-4 my-3">
                   <label htmlFor="location" className="form-label">
-                    Location
+                    ОРНАЛАСҚАН ЖЕРІ
                   </label>
                   <input
                     type="text"
@@ -236,15 +236,14 @@ function DataChanges() {
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
                     id="location"
-                    placeholder="Location.."
+                    placeholder="Орналасқан жері..."
                     required
                   />
-                  <div className="invalid-feedback">Location is required.</div>
+                  <div className="invalid-feedback">Орналасқан жері міндетті.</div>
                 </div>
                 <div className="col-2 my-3">
                   <label htmlFor="participant" className="form-label">
-                    {" "}
-                    Participants
+                    ҚАТЫСУШЫЛАР САНЫ
                   </label>
                   <input
                     type="number"
@@ -260,14 +259,14 @@ function DataChanges() {
                     placeholder="83.."
                   />
                   <div className="invalid-feedback">
-                    Participant is required.
+                    Қатысушылар саны міндетті.
                   </div>
                 </div>
               </div>
             </div>
 
             <div className="col-12 my-3 mt-4">
-              <span>EVENT TYPE</span>
+              <span>ІС-ШАРА ТҮРІ</span>
               <div className="row">
                 <div className="col-6 d-grid">
                   <input
@@ -284,7 +283,7 @@ function DataChanges() {
                     className="btn rounded-0 btn-outline-info"
                     htmlFor="option5"
                   >
-                    OFFLINE EVENT
+                    ОФФЛАЙН ІС-ШАРА
                   </label>
                 </div>
                 <div className="col-6 d-grid">
@@ -302,12 +301,12 @@ function DataChanges() {
                     className="btn rounded-0 btn-outline-info "
                     htmlFor="option6"
                   >
-                    ONLINE EVENT
+                    ОНЛАЙН ІС-ШАРА
                   </label>
                 </div>
               </div>
               <div className="invalid-feedback">
-                Please select an event type.
+                Іс-шара түрін таңдау міндетті.
               </div>
             </div>
 
@@ -315,7 +314,7 @@ function DataChanges() {
               <div className="row">
                 <div className="col-6">
                   <label htmlFor="start-date" className="form-label">
-                    START DATE
+                    БАСТАЛУ КҮНІ
                   </label>
                   <input
                     type="date"
@@ -327,12 +326,12 @@ function DataChanges() {
                     required
                   />
                   <div className="invalid-feedback">
-                    Start date is required.
+                    Басталу күні міндетті.
                   </div>
                 </div>
                 <div className="col-6">
                   <label htmlFor="start-time" className="form-label">
-                    START TIME
+                    БАСТАЛУ УАҚЫТЫ
                   </label>
                   <input
                     type="time"
@@ -344,7 +343,7 @@ function DataChanges() {
                     required
                   />
                   <div className="invalid-feedback">
-                    Start time is required.
+                    Басталу уақыты міндетті.
                   </div>
                 </div>
               </div>
@@ -354,7 +353,7 @@ function DataChanges() {
               <div className="row">
                 <div className="col-6">
                   <label htmlFor="end-date" className="form-label">
-                    END DATE
+                    АЯҚТАЛУ КҮНІ
                   </label>
                   <input
                     type="date"
@@ -365,11 +364,11 @@ function DataChanges() {
                     id="end-date"
                     required
                   />
-                  <div className="invalid-feedback">End date is required.</div>
+                  <div className="invalid-feedback">Аяқталу күні міндетті.</div>
                 </div>
                 <div className="col-6">
                   <label htmlFor="end-time" className="form-label">
-                    END TIME
+                    АЯҚТАЛУ УАҚЫТЫ
                   </label>
                   <input
                     type="time"
@@ -380,7 +379,7 @@ function DataChanges() {
                     id="end-time"
                     required
                   />
-                  <div className="invalid-feedback">End time is required.</div>
+                  <div className="invalid-feedback">Аяқталу уақыты міндетті.</div>
                 </div>
               </div>
             </div>
@@ -388,10 +387,10 @@ function DataChanges() {
               <div className="row">
                 <div className="col-6">
                   <label htmlFor="email" className="form-label">
-                    EMAIL
+                    ЭЛЕКТРОНДЫҚ ПОЧТА
                   </label>
                   <input
-                    placeholder="Enter email..."
+                    placeholder="Электрондық поштаны енгізіңіз..."
                     type="email"
                     className="form-control rounded-0"
                     name="email"
@@ -400,11 +399,11 @@ function DataChanges() {
                     id="email"
                     required
                   />
-                  <div className="invalid-feedback">Email is required.</div>
+                  <div className="invalid-feedback">Электрондық пошта міндетті.</div>
                 </div>
                 <div className="col-6">
                   <label htmlFor="phone" className="form-label">
-                    PHONE NUMBER AND WHATSAPP
+                    ТЕЛЕФОН НӨМІРІ ЖӘНЕ WHATSAPP
                   </label>
                   <PhoneInput
                     country={"kz"}
@@ -418,14 +417,14 @@ function DataChanges() {
                   />
 
                   <div className="invalid-feedback">
-                    Phone number is required.
+                    Телефон нөмірі міндетті.
                   </div>
                 </div>
               </div>
             </div>
             <div className="col-12">
               <label htmlFor="eventDescriptions" className="form-label">
-                Event Description
+                Іс-шара сипаттамасы
               </label>
               <textarea
                 name="eventDescriptions"
@@ -434,11 +433,11 @@ function DataChanges() {
                 onChange={(e) => setDescription(e.target.value)}
                 required
                 value={description}
-                placeholder="Event Description..."
+                placeholder="Іс-шара сипаттамасы..."
                 style={{ height: "100px" }}
               ></textarea>
               <div className="invalid-feedback">
-                Event Description is required.
+                Іс-шара сипаттамасы міндетті.
               </div>
             </div>
 
@@ -451,7 +450,7 @@ function DataChanges() {
                   >
                     {" "}
                     <button type="button" className="btn btn-danger rounded-0">
-                      CANCEL{" "}
+                      БАС ТАРТУ{" "}
                     </button>
                   </NavLink>
                 </div>
@@ -461,7 +460,7 @@ function DataChanges() {
                     className="btn btn-info text-white rounded-0 d-flex justify-content-center"
                     
                   >
-                    <span>{loaderBtn ? <span>UPDATE</span> : <span className="loaderBtn"></span>}</span>
+                    <span>{loaderBtn ? <span>ЖАҢАРТУ</span> : <span className="loaderBtn"></span>}</span>
                   </button>
                 </div>
               </div>

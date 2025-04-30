@@ -1,462 +1,288 @@
-// import react
-import { useState, useEffect } from "react";
-
-// import hooks
+import { useState, useEffect, useRef } from "react";
 import useFetch from "../hook/useFetch";
-
-// import icon
-import { FaEnvelope } from "react-icons/fa";
-
-// import axios
-import axios from "axios";
-
-// import toasts
-import { toast } from "react-toastify";
-import { Toaster } from "react-hot-toast";
+import {
+  FaEnvelope,
+  FaMapMarkerAlt,
+  FaCalendarAlt,
+  FaClock,
+  FaPhone,
+} from "react-icons/fa";
 import { ToastContainer } from "react-toastify";
-
-// import bootstrap
-
-// import react-router-dom
-import { Outlet, useParams, NavLink } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
+import { Outlet, useParams, NavLink, useNavigate } from "react-router-dom";
+import maplibregl from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
 
 function EventDetail() {
-  // URL FOR DETAIL
-
   const { id } = useParams();
-  const url = `https://67ddbf11471aaaa742826b6e.mockapi.io/events/${id}`;
+  const navigate = useNavigate();
+  const url = `http://localhost:8080/api/v1/events/${id}`;
+  const eventsUrl = `http://localhost:8080/api/v1/events`;
+  const { data: detailEvents, err, loading } = useFetch(url);
 
-  // useFetch
-  const { data: detailEvents, err, louding } = useFetch(url);
-
-  // useState
-  const [isVisible, setIsVisible] = useState(false);
-  const [loaderBtn, setLoaderBtn] = useState(true);
-
-  // delete id
+  // Состояния
   const [event, setEvent] = useState([]);
-  useEffect(() => {
-    fetch("https://67ddbf11471aaaa742826b6e.mockapi.io/events")
-      .then((res) => res.json())
-      .then((data) => {
-        const filteredEvents = data.filter((event) => event.id !== `${id}`);
-        setEvent(filteredEvents);
-      });
-  }, [id]);
-
-  // BackToTop
-
-  useEffect(() => {
-    const toggleVisibility = () => {
-      if (window.scrollY > 300) {
-        setIsVisible(true);
-      } else {
-        setIsVisible(false);
-      }
-    };
-
-    window.addEventListener("scroll", toggleVisibility);
-    return () => window.removeEventListener("scroll", toggleVisibility);
-  }, []);
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  // BackToTop
-
-  // baseURL
-  const axiosInstance = axios.create({
-    baseURL: "https://67ddbf11471aaaa742826b6e.mockapi.io",
-  });
-
-  //useState
-  const [validated, setValidated] = useState(false);
-  const [nameUser, setNameUser] = useState("");
-  const [idNumber, setIdNumber] = useState("");
-  const [showForm, setShowForm] = useState(false);
-  const [detailEvent, setDetailEvent] = useState({});
-
-  const fetchDetails = async () => {
-    try {
-      const res = await axios.get(
-        `https://67ddbf11471aaaa742826b6e.mockapi.io/events/${id}`
-      );
-      setDetailEvent(res.data);
-    } catch (err) {
-      console.error("Not found", err);
-    }
-  };
-
-  useEffect(() => {
-    fetchDetails();
-  }, [id]);
-
-  // join user
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    if (!nameUser.trim() || !idNumber.trim()) {
-      toast.error("Please enter all details.");
-      setValidated(true);
-      return;
-    }
-    try {
-      setLoaderBtn(false);
-      const response = await axiosInstance.post("/join", {
-        nameUser,
-        idNumber,
-        eventId: detailEvent.id,
-      });
-
-      await axios
-        .put(
-          `https://67ddbf11471aaaa742826b6e.mockapi.io/events/${detailEvent.id}`,
-          {
-            subscrib: true,
-          }
-        )
-        .then((res) => console.log("Ism o'zgартirildi:", res.data))
-        .catch((error) => console.error("Xatolik yuz berdi:", error));
-
-      console.log(response);
-      toast.success("Joined!");
-      setShowForm(false);
-      setNameUser("");
-      setIdNumber("");
-      setValidated(false);
-
-      fetchDetails();
-    } catch (err) {
-      toast.error("Something went wrong!");
-      console.log(err);
-    } finally {
-      setLoaderBtn(true);
-    }
-  };
-
   const [currentTime, setCurrentTime] = useState(new Date());
+  const mapRef = useRef(null);
 
+  useEffect(() => {
+  const token = localStorage.getItem("authToken"); // Токенни локал сақлашдан олинади
+  fetch(eventsUrl, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`, // Токенни сарлавҳага қўшамиз
+    },
+  })
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      return res.json();
+    })
+    .then((data) => {
+      const filteredEvents = Array.isArray(data)
+        ? data.filter((ev) => ev.id !== id)
+        : [];
+      setEvent(filteredEvents);
+    })
+    .catch((err) => console.error("Error fetching events:", err));
+}, [id]);
+
+  // Текущее время
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
-
     return () => clearInterval(interval);
   }, []);
+
+  // Инициализация карты
+  useEffect(() => {
+    if (!detailEvents?.address || !mapRef.current) return;
+    const map = new maplibregl.Map({
+      container: mapRef.current,
+      style:
+        "https://api.maptiler.com/maps/streets/style.json?key=RnGN0JG3amT4NY2vFR3a",
+      center: [69.2406, 41.2995], // Координаты по умолчанию (Тошкент)
+      zoom: 12,
+    });
+
+    // Добавление маркера
+    new maplibregl.Marker({ color: "#FF0000" })
+      .setLngLat([69.2165, 41.3405]) // Замените на координаты из detailEvents
+      .setPopup(
+        new maplibregl.Popup().setHTML(`
+        <h4>${detailEvents?.title || "Загрузка..."}</h4>
+        ${detailEvents?.address && `<p>${detailEvents.address}</p>`}
+      `)
+      )
+      .addTo(map);
+    return () => map.remove();
+  }, [detailEvents]);
 
   const formattedDate = currentTime
     .toLocaleDateString("ru-RU")
     .replace(/\//g, ".");
   const formattedTime = currentTime.toLocaleTimeString();
 
-  if (!detailEvents) {
-    return <p>Loading...</p>;
-  }
-
   return (
-    <div>
+    <div className="bg-light min-vh-100">
+      <ToastContainer position="top-right" autoClose={3000} />
       <Toaster />
-      <ToastContainer />
-      {louding && <div className="loader"></div>}
-      {err && <div className="loaderErr"></div>}
+      {/* Основной контент */}
+      <div className="container py-4">
+        {/* Кнопка назад */}
+        <div className="mb-4">
+          <button
+            onClick={() => navigate(-1)}
+            className="btn btn-outline-primary rounded-pill px-4 back-btn"
+          >
+            <i className="bi bi-arrow-left me-2"></i>
+            <span className="slide-in">Назад к событиям</span>
+          </button>
+        </div>
 
-      {detailEvents ? (
-        <div
-          className="container bg-info-subtle rounded-3 mb-3 p-3"
-          key={detailEvents.id}
-        >
-          <div className="row">
-            <div className="col-12">
-              <button className="btn btn-info position-fixed z-3">
-                {" "}
-                <NavLink
-                  className="link-offset-2 text-white link-underline link-underline-opacity-0"
-                  to="/"
+        {/* Карточка события с hover-эффектом */}
+        <div className="card event-card shadow-lg mb-4 overflow-hidden border-0 transform-on-hover">
+          <div className="row g-0">
+            {/* Изображение с параллакс-эффектом */}
+            <div className="col-md-6 position-relative image-parallax">
+            <img
+                  src={`https://picsum.photos/id/${detailEvents?.id}/800/600`}
+                  className="img-fluid h-100 object-fit-cover"
+                  alt={"Загрузка..."}
+                  style={{ minHeight: "400px" }}
+                />
+              <div className="position-absolute top-0 end-0 m-3">
+                <span
+                  className={`badge rounded-pill px-3 py-2 badge-pulse ${
+                    detailEvents?.online ? "bg-info" : "bg-danger"
+                  }`}
                 >
-                  {" "}
-                  <i className="bi bi-arrow-left text-white"></i> BACK
-                </NavLink>{" "}
-              </button>
-            </div>
-            <div className="col-12 position-relative">
-              <img
-                src={detailEvents.imgUrl}
-                className="img-fluid rounded-3"
-                style={{ width: "100%", height: "50vh", objectFit: "cover" }}
-                alt={detailEvents.eventName}
-              />
-
-              <span
-                className={`badge position-absolute top-0 end-0 m-3 ${
-                  detailEvents.eventType === "ONLINE" ? "bg-info" : "bg-danger"
-                }`}
-              >
-                {detailEvents.eventType}
-              </span>
-
-              <div className="position-absolute bottom-0 end-0 m-4 px-4 py-2 rounded-4 bg-info ">
-                <span className="fw-bold text-white">📅 {formattedDate}</span>
-                <br />
-                <span className="fw-bold text-white">⏰ {formattedTime}</span>
+                  {detailEvents?.eventType || "CONFERENCE"}
+                </span>
               </div>
-            </div>
-
-            <div className="col-12 col-md-8 col-lg-6 ">
-              <div className="col-12">
-                <h2 className="text-primary fw-bold">
-                  {detailEvents.eventName},
+              <div className="position-absolute bottom-0 start-0 end-0 p-4 event-title-overlay">
+                <h2 className="mb-1 fw-bold text-white title-animate">
+                  {detailEvents?.title || "Загрузка..."}
                 </h2>
-                <p className=" fs-6 fw-medium">
-                  <i className="bi bi-geo-alt-fill text-danger"></i>Location:{" "}
-                  {detailEvents.location}
-                </p>
-                <p className="fw-bold">
-                  <i className="bi bi-translate text-primary"></i> Language:{" "}
-                  {detailEvents.language}
-                </p>
-                <p>
-                  <i className="bi bi-calendar-date-fill text-success"></i>{" "}
-                  Start: {detailEvents.startDate} , {detailEvents.startTime}
-                </p>
-                <p>
-                  ⌛ End: {detailEvents.endDate} , {detailEvents.endTime}
-                </p>
-              </div>
-              <div className="col-12 mt-4">
-                <h5>DISCRIPTION:</h5>
-                <p
-                  className="fw-medium text-muted"
-                  style={{
-                    fontSize: "18px",
-                    lineHeight: "1.4",
-                    textAlign: "justify",
-                  }}
-                >
-                  {detailEvents.description
-                    ? detailEvents.description
-                    : "No Description 😢"}
-                </p>
-              </div>
-              <div className="col-12 my-2 d-flex gap-3 ">
-                <a
-                  href={`tel:${detailEvents.phone}`}
-                  className="btn btn-primary"
-                >
-                  <i className="bi bi-telephone-fill"></i> {detailEvents.phone}
-                </a>
-                <a
-                  href={`mailto:${detailEvents.email}`}
-                  className="btn btn-danger"
-                >
-                  <FaEnvelope /> {detailEvents.email}
-                </a>
-              </div>
-              <div className="col-12">
-                <div className="d-flex gap-3 ">
-                  <a
-                    href={`https://www.google.com/maps/search/?api=1&query=${detailEvents.location}`}
-                    className="btn btn-outline-primary"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <i className="bi bi-geo-alt-fill text-danger"></i> Open in
-                    Maps
-                  </a>
-                  <a
-                    href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${detailEvents.eventName}&dates=${detailEvents.startDate}T${detailEvents.startTime}/${detailEvents.endDate}T${detailEvents.endTime}&details=${detailEvents.description}`}
-                    className="btn btn-success"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    📅 Add to Calendar
-                  </a>
+                <div className="d-flex align-items-center location-animate">
+                  <FaMapMarkerAlt className="me-2" />
+                  <span>{detailEvents?.address || "Адрес не указан"}</span>
                 </div>
               </div>
             </div>
-            {/* <div className="col-6">
-          <iframe width="560" height="315" src="https://www.youtube.com/embed/wFolN58l8Oc?si=jcaKMwXQPMu3jnhT" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-         
-          </div> */}
-            <div className="col-12">
-              <div className="row d-flex justify-content-end ">
-                {detailEvent && detailEvent.subscrib === false ? (
-                  <div className={`col-12 col-md-8 col-lg-4 my-3 `}>
-                    <div
-                      className="accordion my-custom-accordion "
-                      id="accordionExample"
-                    >
-                      <div className="accordion-item">
-                        <h2 className="accordion-header">
-                          <button
-                            className="accordion-button collapsed"
-                            onClick={() => setShowForm(!showForm)}
-                            type="button"
-                            data-bs-target="#collapseOne"
-                            aria-expanded={showForm ? "true" : "false"}
-                            aria-controls="collapseOne"
-                          >
-                            JOIN EVENT
-                          </button>
-                        </h2>
-                        <div
-                          id="collapseOne"
-                          className={`accordion-collapse    ${
-                            showForm ? "show" : ""
-                          }`}
-                        >
-                          <div className="accordion-body ">
-                            <form
-                              className={`needs-validation ${
-                                validated ? "was-validated" : ""
-                              }`}
-                              onSubmit={handleSubmit}
-                              noValidate
-                            >
-                              <div className="mb-3">
-                                <label
-                                  htmlFor="fullName"
-                                  className="form-label"
-                                >
-                                  Full Name (L.F.M.)
-                                </label>
-                                <input
-                                  type="text"
-                                  value={nameUser}
-                                  onChange={(e) => setNameUser(e.target.value)}
-                                  className="form-control"
-                                  id="fullName"
-                                  placeholder="Enter your full name..."
-                                  required
-                                />
-                                <div className="invalid-feedback">
-                                  Please enter your full name.
-                                </div>
-                              </div>
 
-                              <div className="mb-3">
-                                <label
-                                  htmlFor="idNumber"
-                                  className="form-label"
-                                >
-                                  ID Number
-                                </label>
-                                <input
-                                  type="text"
-                                  value={idNumber}
-                                  onChange={(e) => setIdNumber(e.target.value)}
-                                  className="form-control"
-                                  id="idNumber"
-                                  placeholder="Enter your ID number..."
-                                  required
-                                />
-                                <div className="invalid-feedback">
-                                  Please enter your ID number.
-                                </div>
-                                <div
-                                  id="passwordHelpBlock"
-                                  className="form-text"
-                                >
-                                  Enter your ID number (e.g., Passport, INN, or
-                                  License Number).
-                                </div>
-                              </div>
-
-                              <div className="d-flex justify-content-end">
-                                <button
-                                  type="submit"
-                                  className="btn btn-success px-5 d-flex justify-content-center"
-                                >
-                                  <span>
-                                    {loaderBtn ? (
-                                      <span>Join</span>
-                                    ) : (
-                                      <span className="loaderBtn"></span>
-                                    )}
-                                  </span>
-                                </button>
-                              </div>
-                            </form>
-                          </div>
-                        </div>
+            {/* Информация с плавным появлением */}
+            <div className="col-md-6">
+              <div className="card-body h-100 p-4 d-flex flex-column content-fade-in">
+                <div className="mb-4">
+                  {/* Блок с датами */}
+                  <div className="d-flex flex-wrap gap-4 mb-4 date-blocks">
+                    <div className="d-flex align-items-center date-block">
+                      <div className="icon-wrapper bg-light p-3 rounded-circle me-3 shine">
+                        <FaCalendarAlt className="text-primary fs-5" />
+                      </div>
+                      <div>
+                        <h6 className="mb-1 text-muted">Начало</h6>
+                        <p className="mb-0 fw-bold date-text">
+                          {new Date(detailEvents?.startDateTime).toLocaleString() ||
+                            "Дата не указана"}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="d-flex align-items-center date-block">
+                      <div className="icon-wrapper bg-light p-3 rounded-circle me-3 shine">
+                        <FaClock className="text-warning fs-5" />
+                      </div>
+                      <div>
+                        <h6 className="mb-1 text-muted">Окончание</h6>
+                        <p className="mb-0 fw-bold date-text">
+                          {new Date(detailEvents?.endDateTime).toLocaleString() ||
+                            "Дата не указана"}
+                        </p>
                       </div>
                     </div>
                   </div>
-                ) : (
-                  <div className="col-12 col-md-8 col-lg-4 my-3 d-flex justify-content-end">
-                    <button className="btn btn-info  px-5 text-white py-2">
-                      <i className="bi bi-check-circle-fill color-custom"></i>{" "}
-                      JOINED:{" "}
-                      <span className=" fw-bold">{detailEvents.eventName}</span>
-                    </button>
+
+                  {/* Описание с плавным появлением */}
+                  <div className="mb-4 description-animate">
+                    <h5 className="d-flex align-items-center mb-3 section-title">
+                      <span className="highlight-dot"></span>
+                      <span className="ms-3">Описание события</span>
+                    </h5>
+                    <div className="ps-4">
+                      <p className="lead description-text">
+                        {detailEvents?.description || "Описание отсутствует"}
+                      </p>
+                    </div>
                   </div>
-                )}
+
+                  {/* Контакты */}
+                  <div className="d-flex flex-wrap gap-3 mb-4 contact-buttons">
+                    <a
+                      href={`tel:${detailEvents?.phoneNumber}`}
+                      className="btn btn-outline-primary d-flex align-items-center contact-btn"
+                    >
+                      <FaPhone className="me-2" />
+                      <span>{detailEvents?.phoneNumber || "Номер не указан"}</span>
+                    </a>
+                    <a
+                      href={`mailto:${detailEvents?.email}`}
+                      className="btn btn-outline-danger d-flex align-items-center contact-btn"
+                    >
+                      <FaEnvelope className="me-2" />
+                      <span>{detailEvents?.email || "Email не указан"}</span>
+                    </a>
+                  </div>
+                </div>
+
+                {/* Интерактивная карта */}
+                <div className="mt-auto map-container">
+                  <div className="card border-0 shadow-sm map-card">
+                    <div className="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                      <h6 className="mb-0 d-flex align-items-center">
+                        <FaMapMarkerAlt className="text-danger me-2 pulse-icon" />
+                        Местоположение
+                      </h6>
+                      {detailEvents?.address && (
+                        <a
+                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                            detailEvents.address
+                          )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn-sm btn-outline-secondary d-flex align-items-center map-link"
+                        >
+                          <i className="bi bi-box-arrow-up-right me-1"></i>{" "}
+                          Открыть в Картах
+                        </a>
+                      )}
+                    </div>
+                    <div
+                      className="card-body p-0"
+                      style={{ height: "250px" }}
+                    >
+                      <div
+                        ref={mapRef}
+                        className="h-100 w-100 interactive-map"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      ) : (
-        <h1>louding...</h1>
-      )}
 
-      <Outlet />
-      {/* Other events  */}
-      <div className="container">
-        Other events <br />
-        <div className="row d-flex justify-content-center ">
-          {louding && <div className="loader"></div>}
-          {err && <div className="loaderErr"></div>}
-          {event &&
-            event.map((event) => {
-              return (
+        {/* Другие события */}
+        <div className="mb-5">
+          <h3 className="mb-4 text-center">Другие события</h3>
+          <div className="row g-4">
+            {event.map((ev) => (
+              <div className="col-md-6 col-lg-4" key={ev.id}>
                 <div
-                  className="col-5  border border-2 border-info rounded shadow  col-lg-3  rounded-3 my-3 pb-3 mx-3"
-                  key={event.id}
+                  className="card h-100 shadow-sm border-0 hover-shadow transition-all cursor-pointer"
+                  onClick={() => {
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                    navigate(`/${ev.id}`);
+                  }}
                 >
-                  <NavLink
-                    onClick={scrollToTop}
-                    to={`/${event.id}`}
-                    className="text-dark link-underline link-underline-opacity-0"
-                  >
-                    <div className="row">
-                      <div className="col-12 p-0">
-                        <img
-                          src={event.imgUrl}
-                          className=" img-fluid rounded-3"
-                          style={{
-                            width: "100%",
-                            height: "250px",
-                            objectFit: "cover",
-                          }}
-                          alt={event.eventName}
-                        />
-                      </div>
-                      <div className="col-12 fw-medium text-truncate ">
-                        <i className="bi bi-bookmark-check-fill text-primary"></i>
-                        {event.eventName} ,
-                        <span className="fw-bold">
-                          <i className="bi bi-geo-alt-fill text-danger"></i>{" "}
-                          {event.location}
-                        </span>
-                      </div>
-
-                      <div className="col-12">
-                        <i className="bi bi-calendar-date-fill text-warning"></i>{" "}
-                        {event.startDate} ,
-                        <i className="bi bi-alarm-fill text-info"></i>{" "}
-                        {event.startTime}
-                      </div>
-
-                      <div className="col-12">
-                        <span className="badge bg-info">{event.eventType}</span>
-                      </div>
+                  {ev.img && (
+                    <img
+                      src={ev.img}
+                      className="card-img-top"
+                      style={{ height: "200px", objectFit: "cover" }}
+                      alt={ev.title}
+                    />
+                  )}
+                  <div className="card-body">
+                    <h5 className="card-title">{ev.title}</h5>
+                    <div className="d-flex align-items-center text-muted mb-2">
+                      <FaMapMarkerAlt className="me-2" size={14} />
+                      {ev.address && <small>{ev.address}</small>}
                     </div>
-                  </NavLink>
+                    <div className="d-flex justify-content-between align-items-center">
+                      <span
+                        className={`badge ${
+                          ev.online ? "bg-info" : "bg-danger"
+                        }`}
+                      >
+                        {ev.eventType}
+                      </span>
+                      <small className="text-muted">
+                        <FaCalendarAlt className="me-1" />
+                        {new Date(ev.startDateTime).toLocaleDateString()}
+                      </small>
+                    </div>
+                  </div>
                 </div>
-              );
-            })}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
+      <Outlet />
     </div>
   );
 }

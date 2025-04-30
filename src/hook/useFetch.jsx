@@ -1,37 +1,33 @@
-import { useEffect, useState, useCallback } from "react";
+// useFetch
+import { useState, useEffect, useCallback } from 'react';
+import axiosInstance from '../api/AxiosInstance';
 
-function useFetch(url) {
+const useFetch = (endpoint) => {
   const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const fetchData = useCallback(async () => {
-    if (!url) {
-      setError(new Error("URL is required"));
-      return;
-    }
-    setLoading(true);
-
     try {
-      const req = await fetch(url);
-      if (!req.ok) {
-        throw new Error("Not found :( ");
-      }
-      const data = await req.json();
-      setData(data);
+      setLoading(true);
+      const response = await axiosInstance.get(endpoint);
+      setData(response.data);
     } catch (err) {
-      setError(err.message);
-      console.log(err.message);
+      setError(err.response?.data?.message || err.message);
     } finally {
       setLoading(false);
     }
-  }, [url]);
+  }, [endpoint]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
-  return { data, loading, error, refetch: fetchData };
-}
+  const refetch = () => {
+    fetchData();
+  };
+
+  return { data, loading, error, refetch };
+};
 
 export default useFetch;

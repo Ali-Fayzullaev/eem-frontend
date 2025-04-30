@@ -3,7 +3,6 @@ import { useLocation, Navigate, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { authService } from '../api/authService';
 import { toast } from 'react-toastify';
-import { SessionTimer } from './SessionTimer';
 
 export const ProtectedRoute = ({ children, adminOnly = false }) => {
   const location = useLocation();
@@ -11,157 +10,113 @@ export const ProtectedRoute = ({ children, adminOnly = false }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [showRefreshModal, setShowRefreshModal] = useState(false);
-  const [remainingTime, setRemainingTime] = useState(null);
+  const timerRef = useRef(null);
 
-  const refreshTimeoutRef = useRef(null);
-  const timerIntervalRef = useRef(null);
-
-  // Вақтни янгилаш функцияси
-  const updateRemainingTime = () => {
-    const accessToken = authService.getAccessToken();
-    if (!accessToken) return;
+  const checkAuth = async () => {
+    try {
+      const accessToken = authService.getAccessToken();
+      const refreshToken = authService.getRefreshToken();
   
-    const payload = JSON.parse(atob(accessToken.split('.')[1]));
-    const expiresAt = payload.exp * 1000;
-    const now = Date.now();
-    const newRemaining = Math.max(0, expiresAt - now);
+      if (!accessToken || !refreshToken) {
+        throw new Error('Токены отсутствуют');
+      }
   
-    console.log('Updating remaining time:', { expiresAt, now, newRemaining }); // Дебаг маълумоти
+      if (authService.isTokenExpired(accessToken)) {
+        const refreshResult = await authService.refreshTokens();
+        if (!refreshResult.success) {
+          throw new Error('Не удалось обновить токен');
+        }
+      }
   
-    setRemainingTime(newRemaining);
+      const currentUser = authService.getCurrentUser();
+      if (!currentUser) {
+        throw new Error('Пользователь не найден');
+      }
+  
+      if (adminOnly && !['admin', 'manager'].includes(currentUser.role)) {
+        navigate('/user');
+        return;
+      }
+  
+      setUser(currentUser);
+  
+      // Установка таймера для показа модального окна
+      const payload = JSON.parse(atob(accessToken.split('.')[1]));
+      const expiresIn = payload.exp * 1000 - Date.now();
+  
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => {
+        setShowRefreshModal(true);
+      }, expiresIn - 10); 
+  
+    } catch (err) {
+      authService.logout();
+      navigate('/login', { 
+        state: { from: location, error: err.message }, 
+        replace: true 
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // Сессияни узайтириш ёки чиқиш функцияси
-  const handleRefreshSession = async (extend) => {
+  const handleRefresh = async (extend) => {
     try {
       if (extend) {
-        const refreshResult = await authService.refreshTokens();
-        console.log('Refresh result:', refreshResult); // Debugging
-        if (!refreshResult.success) throw new Error('Token refresh failed');
-        const validation = await authService.validateToken();
-        console.log('Validation result:', validation); // Debugging
-        if (!validation.success) throw new Error('Token validation failed');
-        setUser(validation.user);
-        // Reset interval
-        clearInterval(timerIntervalRef.current);
-        updateRemainingTime();
-        timerIntervalRef.current = setInterval(updateRemainingTime, 1000);
-        toast.success("Сессия 15 минутга узайтирилди");
+        const result = await authService.refreshTokens();
+        if (!result.success) throw new Error('Ошибка обновления токена');
+        toast.success('Сессия продлена');
+        checkAuth(); // Повторная проверка авторизации
       } else {
-        throw new Error('Сессия тугатилди');
+        throw new Error('Сессия завершена');
       }
     } catch (err) {
-      console.error('Session refresh error:', err.message); // Debugging
       authService.logout();
-      navigate('/login', {
-        state: { from: location, error: err.message },
-        replace: true
+      navigate('/login', { 
+        state: { from: location, error: err.message }, 
+        replace: true 
       });
     } finally {
       setShowRefreshModal(false);
     }
   };
 
-
-  // Асосий аутентификация текшируви
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const currentUser = await authService.getCurrentUserWithRefresh();
-        if (!currentUser) throw new Error('Not authenticated');
-  
-        // Агар adminOnly=true ва фойдаланувчи админ/менежер бўлмаса
-        if (adminOnly && !["admin", "manager"].includes(currentUser.role)) {
-          navigate('/user'); // Ушбу йўлга ўтказиб юбориш
-          return; // Кейинги кодни ишламаслик учун
-        }
-  
-        setUser(currentUser);
-        updateRemainingTime();
-
-        // Олдинги таймерни тозалаш
-        if (refreshTimeoutRef.current) clearTimeout(refreshTimeoutRef.current);
-
-        const accessToken = authService.getAccessToken();
-        if (accessToken) {
-          const payload = JSON.parse(atob(accessToken.split('.')[1]));
-          const expiresIn = payload.exp * 1000 - Date.now();
-
-          // 1 минут олдин модални кўрсатиш
-          refreshTimeoutRef.current = setTimeout(() => {
-            setShowRefreshModal(true);
-          }, expiresIn - 60000);
-        }
-      } catch (err) {
-        authService.logout();
-        navigate('/login', { state: { from: location, error: err.message }, replace: true });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     checkAuth();
-
     return () => {
-      clearTimeout(refreshTimeoutRef.current);
-      clearInterval(timerIntervalRef.current);
+      if (timerRef.current) clearTimeout(timerRef.current);
     };
   }, [adminOnly, navigate, location]);
 
-  // Вақтни ҳар секундда янгилаш
-  useEffect(() => {
-    timerIntervalRef.current = setInterval(updateRemainingTime, 1000);
-    return () => clearInterval(timerIntervalRef.current);
-  }, []);
-
-  // Модал кўрсатилганда автологаут таймери
-
-  useEffect(() => {
-    if (!showRefreshModal) return;
-    const autoLogoutTimeout = setTimeout(() => {
-      handleRefreshSession(false);
-    }, 60000); // 1 minute = 60000 ms
-    return () => clearTimeout(autoLogoutTimeout);
-  }, [showRefreshModal]);
-
-  if (isLoading) {
-    return <div className="loading-spinner">loading...</div>;
-  }
-
+  if (isLoading) return <div>Загрузка...</div>;
   if (!user) return null;
 
   return (
     <>
-      {/* Вақтни экраннинг юқори оң тарфига кўрсатиш */}
-      <div>
-        <SessionTimer remainingTime={remainingTime} />
-      </div>
-
       {children}
-
-      {/* Сессия узайтириш модали */}
+      
       {showRefreshModal && (
-        <div className="modal show d-block" tabIndex="-1">
+        <div className="modal" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title">As the session is about to end</h5>
+                <h5 className="modal-title">Сессия закончилься</h5>
               </div>
               <div className="modal-body">
-                <p>The session will end in 1 minute. Would you like to extend it?</p>
+                <p>Ваша сессия время закончилься. Продлить?</p>
               </div>
               <div className="modal-footer">
-                <button
-                  className="btn btn-danger"
-                  onClick={() => handleRefreshSession(false)}
+                <button 
+                  className="btn btn-secondary" 
+                  onClick={() => handleRefresh(false)}
                 >
-                  No, log out.
+                  Выйти
                 </button>
-                <button
-                  className="btn btn-success"
-                  onClick={() => handleRefreshSession(true)}
+                <button 
+                  className="btn btn-primary" 
+                  onClick={() => handleRefresh(true)}
                 >
-                  Yes, extend it.
+                  Продлить
                 </button>
               </div>
             </div>

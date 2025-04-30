@@ -1,12 +1,19 @@
 //AdminDashboard.jsx;
 import { useState, useEffect } from "react";
-import HomeAdmin from "../pages/HomeAdmin";
 import { getTokenExpiration } from "../utils/jwt";
 import { authService } from "../api/authService";
+import { Link } from "react-router-dom";
 import {
   BiHome,
   BiMenu,
   BiLogOut,
+  BiHeart,
+  BiBell,
+  BiSolidCalendar,
+  BiMap,
+  BiBarChartAlt2,
+  BiClipboard
+
 } from "react-icons/bi";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import iconEventManagement from "../assets/iconEvent.png";
@@ -50,11 +57,43 @@ function UserDashboard() {
   // Regular tabs (excluding Logout)
   const tabs = [
     {
-      id: "home",
-      label: "All Events",
-      icon: <BiHome size={20} />,
-      content: <HomeAdmin />,
+      id: "statistics",
+      label: "Dashboard",
+      icon: <BiBarChartAlt2 size={20} />,
+      to: "/admin",
     },
+    {
+      id: "allEvents",
+      label: "Барлық іс-шаралар",
+      icon: <BiClipboard size={20} />,
+      to: "/admin/events",
+    },
+    {
+      id: "subscribed",
+      label: "Subscribed",
+      icon: <BiBell size={20} />,
+      to: "/user/subscribed",
+    },
+    {
+      id: "favourite",
+      label: "Favourite",
+      icon: <BiHeart size={20} />,
+      to: "/user/favourite",
+    },
+    {
+      id: "calendar",
+      label: "My Calendar",
+      icon: <BiSolidCalendar size={20} />,
+      to: "/user/calendar",
+    },
+    {
+      id: "map",
+      label: "My Map",
+      icon: <BiMap size={20} />,
+      to: "/user/map",
+    },
+
+    
   ];
 
   // Logout tab (separate from the main tabs)
@@ -125,7 +164,7 @@ function UserDashboard() {
         <div className="sidebar-logo">
           <img src={iconEventManagement} alt="Logo" />
         </div>
-        <div className="sidebar-nav">
+        {/* <div className="sidebar-nav">
           {tabs.map((tab) => (
             <button
               key={tab.id}
@@ -138,6 +177,24 @@ function UserDashboard() {
               <div className="nav-icon">{tab.icon}</div>
               <span>{tab.label}</span>
             </button>
+          ))}
+        </div> */}
+         <div className="sidebar-nav">
+          {tabs.map((tab) => (
+            <Link
+              key={tab.id}
+              to={tab.to} // Ссылка билан ўтиш
+              className={`nav-item  link-underline link-underline-opacity-0 ${
+                activeTab === tab.id ? "active" : ""
+              }`}
+              onClick={() => {
+                setActiveTab(tab.id);
+                if (isMobile) setMenuOpen(false);
+              }}
+            >
+              <div className="nav-icon">{tab.icon}</div>
+              <span>{tab.label}</span>
+            </Link>
           ))}
         </div>
 

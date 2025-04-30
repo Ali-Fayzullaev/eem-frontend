@@ -1,27 +1,11 @@
-//authService
 import axios from 'axios';
 
 const API_URL = 'http://localhost:8080/api/v1/auth';
 
-// Безопасное хранилище
 const secureStorage = {
-  getItem: (key) => {
-    try {
-      return localStorage.getItem(key);
-    } catch (e) {
-      return null;
-    }
-  },
-  setItem: (key, value) => {
-    try {
-      localStorage.setItem(key, value);
-    } catch (e) {
-      console.error('LocalStorage error:', e);
-    }
-  },
-  removeItem: (key) => {
-    localStorage.removeItem(key);
-  }
+  getItem: (key) => localStorage.getItem(key),
+  setItem: (key, value) => localStorage.setItem(key, value),
+  removeItem: (key) => localStorage.removeItem(key)
 };
 
 const api = axios.create({
@@ -36,6 +20,46 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+// const api = axios.create({
+//   baseURL: 'http://localhost:8080/api',
+//   headers: { 'Content-Type': 'application/json' },
+// });
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      const refreshToken = secureStorage.getItem('refreshToken');
+      
+      if (!refreshToken) {
+        authService.logout();
+        return Promise.reject(error);
+      }
+
+      try {
+        // Отправляем refreshToken в теле запроса в указанном формате
+        const response = await axios.post(`${API_URL}/refresh`, { 
+          refreshToken: refreshToken 
+        });
+        
+        secureStorage.setItem('accessToken', response.data.accessToken);
+        secureStorage.setItem('refreshToken', response.data.refreshToken);
+        
+        originalRequest.headers.Authorization = `Bearer ${response.data.accessToken}`;
+        return api(originalRequest);
+      } catch (refreshError) {
+        authService.logout();
+        return Promise.reject(refreshError);
+      }
+    }
+    
+    return Promise.reject(error);
+  }
+);
 
 api.interceptors.response.use(
   (response) => response,
@@ -75,7 +99,7 @@ export const authService = {
     } catch (error) {
       return {
         success: false,
-        error: error.response?.data?.message || 'Registration failed'
+        error: error.response?.data?.message || 'Ошибка регистрации'
       };
     }
   },
@@ -83,14 +107,8 @@ export const authService = {
   login: async (credentials) => {
     try {
       const response = await axios.post(`${API_URL}/login`, credentials);
-      console.log('Login response:', response.data);
-      
       secureStorage.setItem('accessToken', response.data.accessToken);
       secureStorage.setItem('refreshToken', response.data.refreshToken);
-      
-      // Проверка сохранения
-      console.log('Stored accessToken:', secureStorage.getItem('accessToken'));
-      console.log('Stored refreshToken:', secureStorage.getItem('refreshToken'));
       
       return { 
         success: true, 
@@ -101,23 +119,29 @@ export const authService = {
         }
       };
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Ошибка входа:', error);
       return {
         success: false,
-        error: error.response?.data?.message || 'Login failed'
+        error: error.response?.data?.message || 'Ошибка входа'
       };
     }
   },
 
 
+ 
+
   validateToken: async () => {
     try {
       const response = await api.get('/auth/validate');
+      if (response.status !== 200) {
+        throw new Error('Invalid server response');
+      }
       return { 
         success: true,
-        user: response.data
+        user: response.data.user
       };
     } catch (error) {
+      console.error('Token validation error:', error);
       return {
         success: false,
         error: error.response?.data?.message || 'Token validation failed'
@@ -137,39 +161,37 @@ export const authService = {
     }
   },
 
- 
   refreshTokens: async () => {
     try {
       const refreshToken = secureStorage.getItem('refreshToken');
-      if (!refreshToken) throw new Error('No refresh token available');
-  
-      console.log('Refreshing tokens with:', { refreshToken }); // Дебаг маълумоти
-  
-      const response = await axios.post(`${API_URL}/refresh`, { refreshToken });
-      console.log('Refresh response:', response.data); // Дебаг маълумоти
-  
+      if (!refreshToken) throw new Error('Нет refresh токена');
+
+      // Отправляем refreshToken в правильном формате
+      const response = await axios.post(`${API_URL}/refresh`, { 
+        refreshToken: refreshToken 
+      });
+
       if (!response.data?.accessToken || !response.data?.refreshToken) {
-        throw new Error('Invalid token refresh response');
+        throw new Error('Неверный ответ при обновлении токена');
       }
-  
+
       secureStorage.setItem('accessToken', response.data.accessToken);
       secureStorage.setItem('refreshToken', response.data.refreshToken);
-  
+
       return {
         success: true,
         accessToken: response.data.accessToken,
         refreshToken: response.data.refreshToken
       };
     } catch (error) {
-      console.error('Token refresh error:', error);
+      console.error('Ошибка обновления токена:', error);
       return {
         success: false,
-        error: error.response?.data?.message || 'Token refresh failed'
+        error: error.response?.data?.message || 'Ошибка обновления токена'
       };
     }
   },
 
- 
   getCurrentUserWithRefresh: async () => {
     const accessToken = secureStorage.getItem('accessToken');
     const refreshToken = secureStorage.getItem('refreshToken');
@@ -177,9 +199,9 @@ export const authService = {
     if (!accessToken || !refreshToken) return null;
     
     try {
-      // Check if access token is expired
+      // Проверяем, истек ли срок действия access токена
       if (authService.isTokenExpired(accessToken)) {
-        // Attempt to refresh tokens
+        // Пытаемся обновить токены
         const refreshResult = await authService.refreshTokens();
         
         if (!refreshResult.success) {
@@ -187,15 +209,15 @@ export const authService = {
           return null;
         }
         
-        // Get new user data with fresh token
+        // Получаем данные пользователя с новым токеном
         const validation = await authService.validateToken();
         return validation.success ? validation.user : null;
       }
       
-      // Token is still valid, return current user
+      // Токен все еще действителен, возвращаем текущего пользователя
       return authService.getCurrentUser();
     } catch (error) {
-      console.error('User validation error:', error);
+      console.error('Ошибка проверки пользователя:', error);
       authService.logout();
       return null;
     }
@@ -206,12 +228,9 @@ export const authService = {
     secureStorage.removeItem('refreshToken');
   },
 
-  
   getCurrentUser: () => {
     const token = secureStorage.getItem('accessToken');
     if (!token) return null;
-
-    
   
     try {
       const payload = token.split('.')[1];
@@ -270,8 +289,9 @@ export const authService = {
     } catch (error) {
       return {
         success: false,
-        error: error.response?.data?.message || 'Request failed'
+        error: error.response?.data?.message || 'Ошибка запроса'
       };
     }
   }
 };
+

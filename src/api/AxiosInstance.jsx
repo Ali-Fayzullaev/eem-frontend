@@ -4,7 +4,6 @@ import { toast } from 'react-toastify';
 
 // Базовый URL для API
 const BASE_URL = "http://localhost:8080/api/v1/admin";
-
 // Axios инстанцияни яратиш
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
