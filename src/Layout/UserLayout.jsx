@@ -60,13 +60,13 @@ function UserDashboard() {
       id: "statistics",
       label: "Dashboard",
       icon: <BiBarChartAlt2 size={20} />,
-      to: "/admin",
+      to: "/user",
     },
     {
       id: "allEvents",
       label: "Барлық іс-шаралар",
       icon: <BiClipboard size={20} />,
-      to: "/admin/events",
+      to: "/user/events",
     },
     {
       id: "subscribed",
@@ -85,13 +85,7 @@ function UserDashboard() {
       label: "My Calendar",
       icon: <BiSolidCalendar size={20} />,
       to: "/user/calendar",
-    },
-    {
-      id: "map",
-      label: "My Map",
-      icon: <BiMap size={20} />,
-      to: "/user/map",
-    },
+    }
 
     
   ];

@@ -1,107 +1,59 @@
-import { useParams } from "react-router-dom";
+import { useParams, NavLink } from "react-router-dom";
 import useFetch from "../hook/useFetch";
-import { useEffect, useState } from "react";
-import axios from "axios";
-import { toast } from "react-toastify";
 import { Toaster } from "react-hot-toast";
 import { ToastContainer } from "react-toastify";
 
 function SubscribersList() {
   const { userList } = useParams();
-  const [subscribedEvents, setSubscribedEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [editingUser, setEditingUser] = useState(null);
-  const [editFormData, setEditFormData] = useState({
-    nameUser: '',
-    email: '',
-    idNumber: ''
-  });
 
-  const { data: events } = useFetch(
-    `https://67ddbf11471aaaa742826b6e.mockapi.io/events`
+  const token = localStorage.getItem("accessToken");
+
+  const { data: registrations, loading } = useFetch(
+    `http://localhost:8080/api/v1/events/${userList}/registrations`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  const { data: event } = useFetch(
+    `http://localhost:8080/api/v1/events/${userList}`
   );
 
-  const axiosInstance = axios.create({
-    baseURL: "https://67ddbf11471aaaa742826b6e.mockapi.io/",
-  });
 
-  const fetchSubscribedEvents = async () => {
-    try {
-      const res = await axios.get(
-        "https://67ddbf11471aaaa742826b6e.mockapi.io/join",
-        {
-          params: { eventId: userList },
-        }
-      );
-      setSubscribedEvents(res.data);
-    } catch (err) {
-      console.error("Error:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const events = registrations?.content;
 
-  const handleDeleteUser = async (id) => {
-    try {
-      await axiosInstance.delete(`join/${id}`);
-      toast.success("Cancelled !");
-      fetchSubscribedEvents();
-    } catch (err) {
-      console.error("Error deleting event:", err);
-    }
-  };
+  if (!event) {
+    return (
+      <div className="d-flex justify-content-center my-5">
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
+  }
 
-  const handleEditClick = (user) => {
-    setEditingUser(user);
-    setEditFormData({
-      nameUser: user.nameUser,
-      email: user.email,
-      idNumber: user.idNumber
-    });
-  };
-
-  const handleEditFormChange = (e) => {
-    const { name, value } = e.target;
-    setEditFormData({
-      ...editFormData,
-      [name]: value
-    });
-  };
-
-  const handleUpdateUser = async () => {
-    try {
-      await axiosInstance.put(`join/${editingUser.id}`, {
-        ...editingUser,
-        ...editFormData
-      });
-      toast.success("User updated successfully!");
-      setEditingUser(null);
-      fetchSubscribedEvents();
-    } catch (err) {
-      console.error("Error updating user:", err);
-      toast.error("Error updating user");
-    }
-  };
-
-  useEffect(() => {
-    fetchSubscribedEvents();
-  }, [userList]);
-
-  const currentEvent = events?.find((event) => event.id === Number(userList));
-  const totalParticipants = currentEvent?.participant || 10;
-  const progressValue = Math.min(
-    (subscribedEvents.length / totalParticipants) * 100,
-    100
+  const progressValue = Math.round(
+    (event?.registeredAttendeesCount / event.capacity) * 100
   );
+  const isOnline = event?.online;
+  const isOffline = !event?.online && event.address;
 
   return (
     <div className="container-fluid m-0 p-0">
       <Toaster />
       <ToastContainer />
       <div className="card shadow-sm rounded-0 ">
-        <div className="card-header rounded-0 bg-info text-white">
-          <h5 className="mb-0">List of Participants</h5>
+        <div className="card-header rounded-0 bg-info text-white d-flex justify-content-between align-items-center">
+          <h5 className="mb-0">Қатысушылар тізімі:</h5>
+          <div className="d-flex gap-2">
+            <span className="badge text-bg-success">
+              Қатысады: {events?.length}
+            </span>
+            
+          </div>
         </div>
+
         <div className="row">
           <div className="col-12 col-lg-8">
             <div className="card-body p-0">
@@ -113,75 +65,30 @@ function SubscribersList() {
                     <thead className="table table-info">
                       <tr>
                         <th scope="col">#</th>
-                        <th scope="col">Ism</th>
-                        <th scope="col">Email</th>
-                        <th scope="col">ID number</th>
-                        <th scope="col">Change</th>
+                        <th scope="col">Аты</th>
+                        <th scope="col"> Username</th>
+                        <th scope="col">Күні</th>
+                       
+
                       </tr>
                     </thead>
                     <tbody>
-                      {subscribedEvents.length > 0 ? (
-                        subscribedEvents.map((user, index) => (
+                      {events.length > 0 ? (
+                        events.map((user, index) => (
                           <tr key={user.id}>
                             <th scope="row">{index + 1}</th>
-                            <td>{user.nameUser}</td>
-                            <td>{user.email}</td>
-                            <td>{user.idNumber}</td>
-                            <td className="d-flex gap-2">
-                              <button 
-                                className="btn btn-primary"
-                                data-bs-toggle="modal"
-                                data-bs-target="#editUserModal"
-                                onClick={() => handleEditClick(user)}
-                              >
-                                <i className="bi bi-pencil"></i>
-                              </button>
-                              <button
-                                data-bs-toggle="modal"
-                                data-bs-target={`#modal-${user.id}`}
-                                className="btn btn-danger"
-                              >
-                                <i className="bi bi-trash3-fill"></i>
-                              </button>
-
-                              {/* Delete Modal */}
-                              <div
-                                className="modal fade"
-                                key={user.id}
-                                id={`modal-${user.id}`}
-                                tabIndex="-1"
-                                data-bs-backdrop="false"
-                                aria-labelledby="deleteUserModalLabel"
-                                aria-hidden="true"
-                              >
-                                <div className="modal-dialog">
-                                  <div className="modal-content">
-                                    <div className="modal-body">
-                                      <p>
-                                        Do you really want to Delete user <strong>, {user.nameUser}</strong>?
-                                      </p>
-                                    </div>
-                                    <div className="modal-footer">
-                                      <button
-                                        type="button"
-                                        className="btn btn-secondary"
-                                        data-bs-dismiss="modal"
-                                      >
-                                        Cancel
-                                      </button>
-                                      <button
-                                        type="button"
-                                        data-bs-dismiss="modal"
-                                        onClick={() => handleDeleteUser(user.id)}
-                                        className="btn btn-danger"
-                                      >
-                                        Delete
-                                      </button>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
+                            <td>{user.userFullName}</td>
+                            <td>{user.username}</td>
+                            <td>
+                              {new Date(
+                                user.registrationTime
+                              ).toLocaleDateString("ru-RU", {
+                                day: "2-digit",
+                                month: "2-digit",
+                                year: "numeric",
+                              })}
                             </td>
+                            
                           </tr>
                         ))
                       ) : (
@@ -197,117 +104,111 @@ function SubscribersList() {
               )}
             </div>
           </div>
-          <div className="col-12 col-lg-4 align-items-center d-flex justify-content-center">
-            <div className="eb-progress-bar-wrapper align-items-center d-flex justify-content-center">
-              <div className="row align-items-center d-flex justify-content-center">
-                <div className="col-12 align-items-center d-flex justify-content-center">
+          {event && (
+            <div className="col-12 col-lg-4 mb-5" key={event.id}>
+              <div className="event-card-wrapper">
+                {/* Прогресс-жолақ */}
+                <div className="eb-progress-bar-wrapper">
                   <div
                     className="eb-progress-bar html"
-                    style={{ "--value": progressValue, "--col": "#0DCAF0" }}
+                    style={{
+                      "--value": progressValue,
+                      "--col": isOnline ? "#0DCAF0" : "#20C997",
+                    }}
                   >
                     <progress
                       id="html"
                       min="0"
-                      max="100"
-                      value={100}
+                      max={event.capacity}
+                      value={event.registeredAttendeesCount}
                     ></progress>
                   </div>
-                </div>
-                <div className="col-12 align-items-center d-flex justify-content-center">
-                  <label htmlFor="html" className="eb-progress-bar-title">
-                    <h2>Place filling</h2>
+                  <label htmlFor="html" className="eb-progress-bar-title mt-3">
+                    <h3 className="mb-0">{event.title}</h3>
+                    <span className="badge bg-light text-dark mt-2">
+                      {event.eventType === "MEETUP" ? "Кездесу" : "Іс-шара"}
+                    </span>
                   </label>
+                </div>
+
+                {/* Іс-шара туралы мәліметтер */}
+                <div className="event-details">
+                  <div className="detail-item">
+                    <i className="bi bi-card-text"></i>
+                    <p>{event.description}</p>
+                  </div>
+
+                  <div className="detail-item">
+                    <i className="bi bi-calendar-date"></i>
+                    <div>
+                      <span>
+                        {new Date(event.startDateTime).toLocaleDateString(
+                          "kk-KZ"
+                        )}
+                      </span>
+                      <small className="text-muted d-block">
+                        {new Date(event.startDateTime).toLocaleTimeString(
+                          "kk-KZ",
+                          {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          }
+                        )}{" "}
+                        -{" "}
+                        {new Date(event.endDateTime).toLocaleTimeString(
+                          "kk-KZ",
+                          {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          }
+                        )}
+                      </small>
+                    </div>
+                  </div>
+
+                  <div className="detail-item">
+                    <i className="bi bi-people"></i>
+                    <span>
+                      Орындар: {event.registeredAttendeesCount || 0}/
+                      {event.capacity}
+                    </span>
+                  </div>
+
+                  {isOnline && (
+                    <div className="detail-item">
+                      <i className="bi bi-link-45deg"></i>
+                      <a href={event.onlineLink} target="_blank" rel="noopener">
+                        Онлайн-қатысу
+                      </a>
+                    </div>
+                  )}
+
+                  {isOffline && (
+                    <div className="detail-item">
+                      <i className="bi bi-geo-alt"></i>
+                      <span>{event.address}</span>
+                    </div>
+                  )}
+                  <div className="detail-item">
+                    <i className="bi bi-calendar-check"></i>
+                    <div>
+                      <span>
+                        Жасалған күн:{" "} <br />
+                        {new Date(event.createdAt).toLocaleDateString("kk-KZ")}
+                      </span>
+                    </div>
+                  </div>
+
+                  <NavLink to={`/admin/${userList}`}>
+                    <button className="btn btn-primary mt-1 w-100">
+                      <i className="bi bi-ticket-perforated me-2"></i>
+                      Тіркелу
+                    </button>
+                  </NavLink>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Edit User Modal */}
-      <div
-        className="modal fade"
-        id="editUserModal"
-        tabIndex="-1"
-        aria-labelledby="editUserModalLabel"
-        aria-hidden="true"
-      >
-        <div className="modal-dialog">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title" id="editUserModalLabel">
-                Edit Participant
-              </h5>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
-            </div>
-            <div className="modal-body">
-              {editingUser && (
-                <form>
-                  <div className="mb-3">
-                    <label htmlFor="nameUser" className="form-label">
-                      Name
-                    </label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="nameUser"
-                      name="nameUser"
-                      value={editFormData.nameUser}
-                      onChange={handleEditFormChange}
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label htmlFor="email" className="form-label">
-                      Email
-                    </label>
-                    <input
-                      type="email"
-                      className="form-control"
-                      id="email"
-                      name="email"
-                      value={editFormData.email}
-                      onChange={handleEditFormChange}
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label htmlFor="idNumber" className="form-label">
-                      ID Number
-                    </label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="idNumber"
-                      name="idNumber"
-                      value={editFormData.idNumber}
-                      onChange={handleEditFormChange}
-                    />
-                  </div>
-                </form>
-              )}
-            </div>
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="btn btn-info text-white"
-                data-bs-dismiss="modal"
-                onClick={handleUpdateUser}
-              >
-                Save Changes
-              </button>
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

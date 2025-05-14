@@ -1,475 +1,555 @@
-// import axios
-import axios from "axios";
-
-// import toast
-import toast from "react-hot-toast";
-
-// import rrd
-import { useNavigate, NavLink, useParams } from "react-router-dom";
-
-// import react
 import { useState, useEffect } from "react";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { NavLink, useNavigate, useParams } from "react-router-dom";
+import { authService } from "../api/authService";
 
-// import for phone
-import PhoneInput from "react-phone-input-2";
-import "react-phone-input-2/lib/bootstrap.css";
-
-function DataChanges() {
-  const navigate = useNavigate();
+function EditEvent() {
   const { idEvent } = useParams();
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    startDateTime: "",
+    endDateTime: "",
+    cityId: "",
+    address: "",
+    eventType: "",
+    capacity: "",
+    online: false,
+    onlineLink: "",
+    tagIds: [],
+    images: [],
+    coverImageIndex: 0,
+  });
 
-  const [language, setLanguage] = useState("");
-  const [imgUrl, setImgUrl] = useState("");
-  const [image, setImage] = useState("");
-  const [eventName, setEventName] = useState("");
-  const [location, setLocation] = useState("");
-  const [eventType, setEventType] = useState("OFFLINE");
-  const [startDate, setStartDate] = useState("");
-  const [startTime, setStartTime] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [endTime, setEndTime] = useState("");
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
-  const [description, setDescription] = useState("");
   const [validated, setValidated] = useState(false);
-  const [participant, setParticipant] = useState("");
   const [loading, setLoading] = useState(false);
-  const [loaderBtn, setLoaderBtn] = useState(true);
+  const [initialLoad, setInitialLoad] = useState(true);
 
-  
-  // Upload photo to cloudinary
-  const handleUpload = async () => {
-    if (!image) {
-      toast.error("Please upload an image!");
-      return;
+  // Cities и tagIdsCategories остаются как в оригинале
+  const cities = [
+    { id: 1, name: "Алматы" },
+    { id: 2, name: "Нур-Султан" },
+    { id: 3, name: "Шымкент" },
+    { id: 4, name: "Караганда" },
+    { id: 5, name: "Актобе" },
+    { id: 6, name: "Тараз" },
+    { id: 7, name: "Павлодар" },
+    { id: 8, name: "Усть-Каменогорск" },
+    { id: 9, name: "Семей" },
+    { id: 10, name: "Атырау" },
+    { id: 11, name: "Кокшетау" },
+    { id: 12, name: "Талдыкорган" },
+    { id: 13, name: "Экибастуз" },
+    { id: 14, name: "Кызылорда" },
+    { id: 15, name: "Жезказган" },
+    { id: 16, name: "Рудный" },
+    { id: 17, name: "Кентау" },
+    { id: 18, name: "Темиртау" },
+    { id: 19, name: "Туркестан" },
+  ];
+
+  const tagIdsCategories = [
+    { id: 1, name: "Технология", colorCode: "#FF5733" },
+    { id: 2, name: "Денсаулық", colorCode: "#33FF57" },
+    { id: 3, name: "Білім", colorCode: "#3357FF" },
+    { id: 4, name: "Спорт", colorCode: "#FF33A1" },
+    { id: 5, name: "Өнер", colorCode: "#FF8C33" },
+    { id: 6, name: "Музыка", colorCode: "#33FFA1" },
+    { id: 7, name: "Тамақ", colorCode: "#A133FF" },
+    { id: 8, name: "Саяхат", colorCode: "#FF33A1" },
+    { id: 9, name: "Бизнес", colorCode: "#FF5733" },
+    { id: 10, name: "Қоршаған орта", colorCode: "#33FF57" },
+    { id: 11, name: "Мәдениет", colorCode: "#3357FF" },
+    { id: 12, name: "Қоғам", colorCode: "#FF33A1" },
+    { id: 13, name: "Өмір салты", colorCode: "#FF8C33" },
+    { id: 14, name: "Ғылым", colorCode: "#33FFA1" },
+  ];
+
+  useEffect(() => {
+    const fetchEventData = async () => {
+      try {
+        const token = localStorage.getItem("accessToken");
+        const response = await axios.get(`http://localhost:8080/api/v1/events/${idEvent}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const eventData = response.data;
+        setFormData({
+          ...eventData,
+          startDateTime: eventData.startDateTime.slice(0, 16),
+          endDateTime: eventData.endDateTime.slice(0, 16),
+          cityId: eventData.city?.id?.toString() || "",
+          tagIds: formData.tagIds.map((id) => parseInt(id)), // Бу ёзилиши керак
+          images: eventData.images.map((img) => img.imageUrl),
+          coverImageIndex: eventData.images.findIndex((img) => img.isCoverImage),
+        });
+        setInitialLoad(false);
+      } catch (error) {
+        toast.error("Іс-шара жүктеу кезінде қате орын алды");
+        navigate("/admin/changes");
+      }
+    };
+
+    if (idEvent) fetchEventData();
+  }, [idEvent, navigate]);
+
+  const handleImageUpload = async (e) => {
+    // Оригинальная реализация из CreateEvent
+    const files = Array.from(e.target.files);
+    const uploadedImages = [];
+
+    for (const file of files) {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", "events");
+
+      try {
+        const response = await fetch(`https://api.cloudinary.com/v1_1/dmnx1jyqq/image/upload`, {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await response.json();
+        uploadedImages.push(data.secure_url);
+      } catch (error) {
+        console.error("Сурет жүктеу кезінде қате:", error);
+        toast.error("Сурет жүктеу кезінде қате!");
+      }
     }
 
-    const formData = new FormData();
-    formData.append("file", image);
-    formData.append("upload_preset", "events");
-    formData.append("cloud_name", "dmnx1jyqq");
+    setFormData((prev) => ({
+      ...prev,
+      images: [...prev.images, ...uploadedImages],
+    }));
+  };
 
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const handleTagChange = (e) => {
+    const { value, checked } = e.target;
+    setFormData((prev) => {
+      const updatedTags = checked ? [...prev.tagIds, value] : prev.tagIds.filter((id) => id !== value);
+      return { ...prev, tagIds: updatedTags };
+    });
+  };
+
+  const validateUrl = (url) => {
+    if (!formData.online || !url) return true;
     try {
-      const response = await axios.post(
-        "https://api.cloudinary.com/v1_1/dmnx1jyqq/image/upload",
-        formData
-      );
-
-      console.log("Server :", response.data);
-      setImgUrl(response.data.secure_url);
-      toast.success("Image uploaded!");
-    } catch (error) {
-      console.error("Upload error:", error);
-      toast.error("Error while uploading!");
+      new URL(url);
+      return true;
+    } catch {
+      return false;
     }
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const form = e.currentTarget;
 
-    const form = event.currentTarget;
-    if (form.checkValidity() === false) {
-      event.stopPropagation();
-      toast.error("Please enter your event data.");
+    if (!form.checkValidity() || !validateUrl(formData.onlineLink)) {
+      e.stopPropagation();
       setValidated(true);
       return;
     }
 
-    // setting date
-    if (
-      new Date(`${startDate}T${startTime}`) > new Date(`${endDate}T${endTime}`)
-    ) {
-      toast.error("End time must be later than start time!");
-      return;
-    }
-
-    const today = new Date();
-    const todayDate = today.toISOString().split("T")[0]; //
-
-    if (startDate < todayDate) {
-      toast.error("Start date cannot be before today!");
-      return;
-    }
-
-    if (endDate < todayDate) {
-      toast.error("End date cannot be before today!");
-      return;
-    }
-
-    // put to events
     try {
-      setLoaderBtn(false);
-      const response = await axios.put(
-        `https://67ddbf11471aaaa742826b6e.mockapi.io/events/${idEvent}`,
-        {
-          eventName,
-          location,
-          language,
-          eventType,
-          startDate,
-          startTime,
-          endDate,
-          endTime,
-          imgUrl,
-          phone,
-          email,
-          description,
-          participant,
-        }
-      );
-      setTimeout(() => {
-        setLoading(false); // выключаем состояние загрузки после завершения запроса
-        toast.success("Event updated successfully!");
-        navigate("/admin");
-      }, 1000);
-    } catch (err) {
-      setLoading(false);
-      toast.error("Failed to update event");
-      console.error(err);
-    }
+      setLoading(true);
+      const token = localStorage.getItem("accessToken");
 
-    // Reset form
-    setEventName("");
-    setLocation("");
-    setLanguage("");
-    setEventType("OFFLINE");
-    setStartDate("");
-    setStartTime("");
-    setEndDate("");
-    setEndTime("");
-    setImgUrl("");
-    setPhone("");
-    setEmail("");
-    setDescription("");
-    setValidated(false);
-    setParticipant("");
+      const requestData = {
+        ...formData,
+        capacity: parseInt(formData.capacity),
+        cityId: formData.online ? null : formData.cityId,
+        address: formData.online ? null : formData.address,
+        onlineLink: formData.online ? formData.onlineLink : null,
+        tagIds: formData.tagIds.map((id) => parseInt(id)),
+        images: formData.images.map((img, index) => ({
+          imageUrl: img,
+          isCoverImage: index === formData.coverImageIndex,
+        })),
+      };
+
+      await axios.put(`http://localhost:8080/api/v1/events/${idEvent}`, requestData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      toast.success("Іс-шара сәтті жаңартылды!");
+      navigate("/admin/events");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Іс-шараны жаңарту кезінде қате орын алды");
+      if (error.response?.status === 401) {
+        authService.logout();
+        navigate("/login");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
+  if (initialLoad) return <div>Жүктелуде...</div>;
+
   return (
-    <div className="container">
-      {/* Іс-шараны өңдеу */}
-      <div className="text-info h2 my-4">Іс-шараны өңдеу</div>
-      <div className="container my-3 rounded-4 pb-4 mb-5 border border-2 border-info rounded-0 py-2 pt-4">
-        <form
-          noValidate
-          className={`needs-validation ${validated ? "was-validated" : ""}`}
-          onSubmit={handleSubmit}
-        >
-          <div className="row">
-            <div className="col-12">
-              <div className="row">
-                <div className="col-6">
-                  <label htmlFor="source-language" className="form-label">
-                    ТІЛ
-                  </label>
-                  <select
-                    className="form-select mt-2 rounded-0"
-                    name="language"
-                    value={language}
-                    onChange={(e) => setLanguage(e.target.value)}
-                    id="source-language"
-                    required
-                  >
-                    <option value="">Тілді таңдаңыз</option>
-                    <option value="English">Ағылшын</option>
-                    <option value="Russian">Орыс</option>
-                    <option value="Kazakh">Қазақ</option>
-                  </select>
-                  <div className="invalid-feedback">
-                    Тілді таңдау міндетті.
-                  </div>
-                </div>
-                <div className="col-6">
-                  <label htmlFor="uploadPhotos" className="form-label">
-                    ФОТО СУРЕТ ЖҮКТЕУ
-                  </label>
+    <div className="container-fluid py-4">
+      <div className="card shadow-sm border-0">
+        <div className="card-header bg-white border-0 text-center">
+          <h2 className="h4 mb-0 text-primary">Іс-шараны өңдеу</h2>
+          <p className="text-muted mb-0">Іс-шара параметрлерін төменде өзгертуге болады</p>
+        </div>
 
-                  <input
-                    type="file"
-                    className="form-control d-inline-block rounded-0"
-                    name="uploadPhotos"
-                    onChange={(e) => setImage(e.target.files[0])}
-                    id="uploadPhotos"
-                    required
-                  />
-
-                  <div className="invalid-feedback">Фото сурет жүктеу міндетті.</div>
-                  <button
-                    onClick={handleUpload}
-                    type="button"
-                    className="btn btn-info text-white my-2 rounded-0 mb-2"
-                  >
-                    Фото жүктеу
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="col-12">
-              <div className="row">
-                <div className="col-6 my-3">
-                  <label htmlFor="event-name" className="form-label">
-                    ІС-ШАРА АТАУЫ
+        <div className="card-body p-3 p-lg-4">
+          <form noValidate className={`needs-validation ${validated ? "was-validated" : ""}`} onSubmit={handleSubmit}>
+            {/* Негізгі ақпарат */}
+            <div className="mb-4">
+              <h5 className="mb-3 text-info">Негізгі ақпарат</h5>
+              <div className="row g-3">
+                <div className="col-12 col-lg-6">
+                  <label htmlFor="title" className="form-label fw-medium">
+                    Атауы <span className="text-danger">*</span>
                   </label>
                   <input
                     type="text"
-                    className="form-control rounded-0"
-                    name="eventName"
-                    value={eventName}
-                    id="event-name"
-                    onChange={(e) => setEventName(e.target.value)}
-                    placeholder="Іс-шара атауы..."
+                    className="form-control"
+                    name="title"
+                    value={formData.title}
+                    id="title"
+                    onChange={handleChange}
+                    placeholder="Іс-шара атауын енгізіңіз"
                     required
                   />
-                  <div className="invalid-feedback">
-                    Іс-шара атауы міндетті.
-                  </div>
+                  <div className="invalid-feedback">Атауы міндетті.</div>
                 </div>
-                <div className="col-4 my-3">
-                  <label htmlFor="location" className="form-label">
-                    ОРНАЛАСҚАН ЖЕРІ
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control rounded-0"
-                    name="location"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    id="location"
-                    placeholder="Орналасқан жері..."
-                    required
-                  />
-                  <div className="invalid-feedback">Орналасқан жері міндетті.</div>
-                </div>
-                <div className="col-2 my-3">
-                  <label htmlFor="participant" className="form-label">
-                    ҚАТЫСУШЫЛАР САНЫ
+                <div className="col-12 col-lg-6">
+                  <label htmlFor="capacity" className="form-label fw-medium">
+                    Қатысушылар саны <span className="text-danger">*</span>
                   </label>
                   <input
                     type="number"
-                    className="form-control rounded-0"
-                    name="participant"
-                    value={participant}
-                    onChange={(e) =>
-                      setParticipant(parseInt(e.target.value) || 0)
-                    }
+                    className="form-control"
+                    name="capacity"
+                    value={formData.capacity}
+                    onChange={handleChange}
+                    id="capacity"
+                    placeholder="Қатысушылар санын енгізіңіз"
                     required
                     min="1"
-                    id="participant"
-                    placeholder="83.."
                   />
-                  <div className="invalid-feedback">
-                    Қатысушылар саны міндетті.
+                  <div className="invalid-feedback">Қатысушылар санын көрсетіңіз.</div>
+                </div>
+                <div className="col-12">
+                  <label htmlFor="description" className="form-label fw-medium">
+                    Сипаттама <span className="text-danger">*</span>
+                  </label>
+                  <textarea
+                    name="description"
+                    className="form-control"
+                    id="description"
+                    value={formData.description}
+                    onChange={handleChange}
+                    required
+                    placeholder="Іс-шараны сипаттаңыз..."
+                    rows="4"
+                  ></textarea>
+                  <div className="invalid-feedback">Іс-шара сипаттамасын қосыңз.</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Расмлар */}
+            <div className="mb-4">
+              <h5 className="mb-3 text-info">Расмлар</h5>
+              <div className="row g-3">
+                <div className="col-12">
+                  <label htmlFor="images" className="form-label fw-medium">
+                    Жаңа суреттер қосу
+                  </label>
+                  <input type="file" className="form-control" id="images" multiple onChange={handleImageUpload} />
+                  <div className="mt-3">
+                    {formData.images.length > 0 && (
+                      <div className="d-flex flex-wrap gap-2">
+                        {formData.images.map((image, index) => (
+                          <div key={index} className="position-relative">
+                            <img
+                              src={image}
+                              alt={`Preview ${index}`}
+                              style={{
+                                width: "100px",
+                                height: "100px",
+                                objectFit: "cover",
+                                border: formData.coverImageIndex === index ? "3px solid #0d6efd" : "1px solid #dee2e6",
+                              }}
+                              className="rounded"
+                            />
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-danger position-absolute top-0 end-0"
+                              onClick={() => {
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  images: prev.images.filter((_, i) => i !== index),
+                                  coverImageIndex:
+                                    prev.coverImageIndex === index
+                                      ? 0
+                                      : prev.coverImageIndex > index
+                                      ? prev.coverImageIndex - 1
+                                      : prev.coverImageIndex,
+                                }));
+                              }}
+                            >
+                              ×
+                            </button>
+                            <button
+                              type="button"
+                              className={`btn btn-sm ${
+                                formData.coverImageIndex === index ? "btn-primary" : "btn-outline-primary"
+                              } position-absolute bottom-0 start-0`}
+                              onClick={() => {
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  coverImageIndex: index,
+                                }));
+                              }}
+                            >
+                              <i className="bi bi-star-fill"></i>
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="col-12 my-3 mt-4">
-              <span>ІС-ШАРА ТҮРІ</span>
-              <div className="row">
-                <div className="col-6 d-grid">
-                  <input
-                    type="radio"
-                    className="btn-check"
+            {/* Іс-шара түрі */}
+            <div className="mb-4">
+              <h5 className="mb-3 text-info">Іс-шара түрі</h5>
+              <div className="row g-3">
+                <div className="col-12 col-lg-6">
+                  <select
+                    className="form-select"
                     name="eventType"
-                    onChange={(e) => setEventType(e.target.value)}
-                    value="OFFLINE"
-                    checked={eventType === "OFFLINE"}
-                    id="option5"
+                    value={formData.eventType}
+                    onChange={handleChange}
+                    id="eventType"
                     required
-                  />
-                  <label
-                    className="btn rounded-0 btn-outline-info"
-                    htmlFor="option5"
                   >
-                    ОФФЛАЙН ІС-ШАРА
-                  </label>
+                    <option value="">Іс-шара түрін таңдаңыз</option>
+                    <option value="CONFERENCE">Конференция</option>
+                    <option value="MEETUP">Кездесу</option>
+                    <option value="WORKSHOP">Жұмысшы орталық</option>
+                    <option value="MASTERCLASS">Шеберлік сабағы</option>
+                  </select>
+                  <div className="invalid-feedback">Түрі міндетті.</div>
                 </div>
-                <div className="col-6 d-grid">
-                  <input
-                    type="radio"
-                    className="btn-check"
-                    name="eventType"
-                    onChange={(e) => setEventType(e.target.value)}
-                    value="ONLINE"
-                    checked={eventType === "ONLINE"}
-                    id="option6"
-                    required
-                  />
-                  <label
-                    className="btn rounded-0 btn-outline-info "
-                    htmlFor="option6"
-                  >
-                    ОНЛАЙН ІС-ШАРА
-                  </label>
-                </div>
-              </div>
-              <div className="invalid-feedback">
-                Іс-шара түрін таңдау міндетті.
-              </div>
-            </div>
-
-            <div className="col-12 my-3 mt-5">
-              <div className="row">
-                <div className="col-6">
-                  <label htmlFor="start-date" className="form-label">
-                    БАСТАЛУ КҮНІ
-                  </label>
-                  <input
-                    type="date"
-                    className="form-control rounded-0"
-                    name="startDate"
-                    onChange={(e) => setStartDate(e.target.value)}
-                    value={startDate}
-                    id="start-date"
-                    required
-                  />
-                  <div className="invalid-feedback">
-                    Басталу күні міндетті.
-                  </div>
-                </div>
-                <div className="col-6">
-                  <label htmlFor="start-time" className="form-label">
-                    БАСТАЛУ УАҚЫТЫ
-                  </label>
-                  <input
-                    type="time"
-                    className="form-control rounded-0"
-                    name="startTime"
-                    onChange={(e) => setStartTime(e.target.value)}
-                    value={startTime}
-                    id="start-time"
-                    required
-                  />
-                  <div className="invalid-feedback">
-                    Басталу уақыты міндетті.
+                <div className="col-12 col-lg-6">
+                  <div className="form-check">
+                    <input
+                      type="checkbox"
+                      className="form-check-input"
+                      name="online"
+                      checked={formData.online}
+                      onChange={handleChange}
+                      id="online"
+                    />
+                    <label htmlFor="online" className="form-check-label">
+                      Онлайн іс-шара
+                    </label>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="col-12 my-3 mt-5">
-              <div className="row">
-                <div className="col-6">
-                  <label htmlFor="end-date" className="form-label">
-                    АЯҚТАЛУ КҮНІ
+            {/* Күні мен уақыты */}
+            <div className="mb-4">
+              <h5 className="mb-3 text-info">Күні мен уақыты</h5>
+              <div className="row g-3">
+                <div className="col-12 col-lg-6">
+                  <label htmlFor="startDateTime" className="form-label fw-medium">
+                    Басталу күні мен уақыты <span className="text-danger">*</span>
                   </label>
                   <input
-                    type="date"
-                    className="form-control rounded-0"
-                    name="endDate"
-                    onChange={(e) => setEndDate(e.target.value)}
-                    value={endDate}
-                    id="end-date"
+                    type="datetime-local"
+                    className="form-control"
+                    name="startDateTime"
+                    value={formData.startDateTime}
+                    onChange={handleChange}
+                    id="startDateTime"
                     required
                   />
-                  <div className="invalid-feedback">Аяқталу күні міндетті.</div>
+                  <div className="invalid-feedback">Басталу күні мен уақыты міндетті.</div>
                 </div>
-                <div className="col-6">
-                  <label htmlFor="end-time" className="form-label">
-                    АЯҚТАЛУ УАҚЫТЫ
+                <div className="col-12 col-lg-6">
+                  <label htmlFor="endDateTime" className="form-label fw-medium">
+                    Аяқталу күні мен уақыты <span className="text-danger">*</span>
                   </label>
                   <input
-                    type="time"
-                    className="form-control rounded-0"
-                    name="endTime"
-                    onChange={(e) => setEndTime(e.target.value)}
-                    value={endTime}
-                    id="end-time"
+                    type="datetime-local"
+                    className="form-control"
+                    name="endDateTime"
+                    value={formData.endDateTime}
+                    onChange={handleChange}
+                    id="endDateTime"
                     required
                   />
-                  <div className="invalid-feedback">Аяқталу уақыты міндетті.</div>
+                  <div className="invalid-feedback">Аяқталу күні мен уақыты міндетті.</div>
                 </div>
               </div>
             </div>
-            <div className="col-12 my-3 mt-5">
-              <div className="row">
-                <div className="col-6">
-                  <label htmlFor="email" className="form-label">
-                    ЭЛЕКТРОНДЫҚ ПОЧТА
-                  </label>
-                  <input
-                    placeholder="Электрондық поштаны енгізіңіз..."
-                    type="email"
-                    className="form-control rounded-0"
-                    name="email"
-                    onChange={(e) => setEmail(e.target.value)}
-                    value={email}
-                    id="email"
-                    required
-                  />
-                  <div className="invalid-feedback">Электрондық пошта міндетті.</div>
-                </div>
-                <div className="col-6">
-                  <label htmlFor="phone" className="form-label">
-                    ТЕЛЕФОН НӨМІРІ ЖӘНЕ WHATSAPP
-                  </label>
-                  <PhoneInput
-                    country={"kz"}
-                    value={phone}
-                    className="my-phone-input"
-                    onChange={(phone) => setPhone(phone)}
-                    inputProps={{
-                      name: "phone",
-                      required: true,
-                    }}
-                  />
 
-                  <div className="invalid-feedback">
-                    Телефон нөмірі міндетті.
+            {/* Орналасқан жері */}
+            {!formData.online && (
+              <div className="mb-4">
+                <h5 className="mb-3 text-info">Орналасқан жері</h5>
+                <div className="row g-3">
+                  <div className="col-12 col-lg-6">
+                    <label htmlFor="cityId" className="form-label fw-medium">
+                      Қала <span className="text-danger">*</span>
+                    </label>
+                    <select
+                      className="form-select"
+                      name="cityId"
+                      value={formData.cityId}
+                      onChange={handleChange}
+                      id="cityId"
+                      required={!formData.online}
+                    >
+                      <option value="">Қаланы таңдаңыз</option>
+                      {cities.map((city) => (
+                        <option key={city.id} value={city.id}>
+                          {city.name}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="invalid-feedback">Қала міндетті.</div>
+                  </div>
+                  <div className="col-12 col-lg-6">
+                    <label htmlFor="address" className="form-label fw-medium">
+                      Мекен-жай <span className="text-danger">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      name="address"
+                      value={formData.address}
+                      onChange={handleChange}
+                      id="address"
+                      placeholder="Мекен-жайды енгізіңіз"
+                      required={!formData.online}
+                    />
+                    <div className="invalid-feedback">Мекен-жай міндетті.</div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div className="col-12">
-              <label htmlFor="eventDescriptions" className="form-label">
-                Іс-шара сипаттамасы
-              </label>
-              <textarea
-                name="eventDescriptions"
-                className="form-control"
-                id="eventDescriptions"
-                onChange={(e) => setDescription(e.target.value)}
-                required
-                value={description}
-                placeholder="Іс-шара сипаттамасы..."
-                style={{ height: "100px" }}
-              ></textarea>
-              <div className="invalid-feedback">
-                Іс-шара сипаттамасы міндетті.
+            )}
+
+            {/* Онлайн мәліметтер */}
+            {formData.online && (
+              <div className="mb-4">
+                <h5 className="mb-3 text-info">Онлайн мәліметтер</h5>
+                <div className="row g-3">
+                  <div className="col-12 col-lg-6">
+                    <label htmlFor="onlineLink" className="form-label fw-medium">
+                      Онлайн сілтеме <span className="text-danger">*</span>
+                    </label>
+                    <input
+                      type="url"
+                      className={`form-control ${validated && !validateUrl(formData.onlineLink) ? "is-invalid" : ""}`}
+                      name="onlineLink"
+                      value={formData.onlineLink}
+                      onChange={handleChange}
+                      id="onlineLink"
+                      placeholder="Zoom, Google Meet ссылкасы"
+                      required={formData.online}
+                    />
+                    <div className="invalid-feedback">Жарамды URL мекенжайын енгізіңіз</div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Тегтер */}
+            <div className="mb-4">
+              <h5 className="mb-3 text-info">Санаттар</h5>
+              <div className="row g-3">
+                <div className="col-12 d-flex flex-wrap gap-2">
+                  {tagIdsCategories.map((tag) => (
+                    <div key={tag.id} className="form-check form-check-inline">
+                      <label
+                        htmlFor={`tag-${tag.id}`}
+                        className={`btn rounded-pill py-2 px-3 ${
+                          formData.tagIds.includes(tag.id.toString()) ? "active-tag" : ""
+                        }`}
+                        style={{
+                          cursor: "pointer",
+                          backgroundColor: tag.colorCode,
+                          color: "#fff",
+                          transition: "all 0.3s ease",
+                          boxShadow: formData.tagIds.includes(tag.id.toString())
+                            ? "0 6px 12px rgba(247, 5, 5, 0.2)"
+                            : "0 4px 6px rgba(0, 0, 0, 0.1)",
+                          border: formData.tagIds.includes(tag.id.toString()) ? "4px solid #544545" : "none",
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          className="d-none"
+                          id={`tag-${tag.id}`}
+                          value={tag.id}
+                          checked={formData.tagIds.includes(tag.id.toString())}
+                          onChange={handleTagChange}
+                        />
+                        {tag.name}
+                      </label>
+                    </div>
+                  ))}
+                  <div className="invalid-feedback">Кем дегенде бір санатты таңдаңыз.</div>
+                </div>
+              </div>
+              <div className="mt-3">
+                <p className="text-muted small mb-0" style={{ fontSize: "0.875rem" }}>
+                  Іс-шараға бірнеше санат таңдай аласыз.
+                </p>
               </div>
             </div>
 
-            <div className="col-12 mt-4">
-              <div className="row">
-                <div className="col-6 d-grid">
-                  <NavLink
-                    className="d-grid  link-offset-2 link-underline link-underline-opacity-0"
-                    to="/admin"
-                  >
-                    {" "}
-                    <button type="button" className="btn btn-danger rounded-0">
-                      БАС ТАРТУ{" "}
-                    </button>
-                  </NavLink>
-                </div>
-                <div className="col-6 d-grid">
-                  <button
-                    type="submit"
-                    className="btn btn-info text-white rounded-0 d-flex justify-content-center"
-                    
-                  >
-                    <span>{loaderBtn ? <span>ЖАҢАРТУ</span> : <span className="loaderBtn"></span>}</span>
-                  </button>
-                </div>
-              </div>
+            {/* Кнопки */}
+            <div className="d-flex justify-content-between flex-column flex-lg-row pt-3 border-top">
+              <NavLink to="/admin/events" className="btn btn-outline-danger mx-2 w-100 w-lg-auto my-2 my-lg-0">
+                Бас тарту
+              </NavLink>
+              <button type="submit" className="btn btn-primary mx-2 w-100 w-lg-auto" disabled={loading}>
+                {loading ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    Сақтау...
+                  </>
+                ) : (
+                  <>
+                    <i className="bi bi-save me-2"></i>
+                    Өзгерістерді сақтау
+                  </>
+                )}
+              </button>
             </div>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   );
 }
 
-export default DataChanges;
+export default EditEvent;

@@ -11,7 +11,7 @@ function Signup() {
     firstName: "",
     lastName: "",
     username: "",
-    phoneNumber: "", // Yangi maydon qo'shildi
+    phoneNumber: "", // Жаңа өріс қосылды
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -29,12 +29,12 @@ function Signup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Telefon raqamini validatsiya qilish
+    // Телефон нөмірін тексеру
     const phoneRegex =
       /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/im;
     if (!phoneRegex.test(formData.phoneNumber)) {
-      setError("Invalid phone number format.");
-      toast.error("Please enter a valid phone number.");
+      setError("Телефон нөмірінің форматы дұрыс емес.");
+      toast.error("Дұрыс телефон нөмірін енгізіңіз.");
       return;
     }
 
@@ -53,38 +53,38 @@ function Signup() {
           firstName: "",
           lastName: "",
           username: "",
-          phoneNumber: "", // Tozalash
+          phoneNumber: "", // Тазалау
         });
 
-        toast.success("Registration successful! You can now login.");
+        toast.success("Тіркелу сәтті! Енді кіре аласыз.");
         navigate("/login", { replace: true });
       } else {
-        throw new Error(response.statusText || "Registration failed");
+        throw new Error(response.statusText || "Тіркелу сәтсіз аяқталды");
       }
     } catch (err) {
-      let errorMessage = "Something went wrong. Please try again.";
+      let errorMessage = "Қандай да бір қате орын алды. Қайталап көріңіз.";
 
       if (err.code === "ERR_NETWORK") {
         errorMessage =
-          "Cannot connect to server. Please check your internet connection.";
+          "Серверге қосылу мүмкін емес. Интернет қосылымыңызды тексеріңіз.";
       } else if (err.code === "ECONNABORTED") {
-        errorMessage = "Request timeout. Please try again.";
+        errorMessage = "Сұраныс уақыты асып кетті. Қайталап көріңіз.";
       } else if (err.response) {
         errorMessage =
           err.response.data?.message ||
           err.response.statusText ||
-          "Registration failed";
+          "Тіркелу сәтсіз аяқталды";
 
         if (err.response.status === 409) {
-          errorMessage = "User with this email already exists.";
+          errorMessage = "Осы электрондық пошта мекенжайымен тіркелген пайдаланушы бар.";
         } else if (err.response.status === 400) {
-          errorMessage = "Invalid registration data. Please check your inputs.";
+          errorMessage = "Тіркелу деректері дұрыс емес. Енгізілген мәліметтерді тексеріңіз.";
         }
       }
 
       setError(errorMessage);
       toast.error(errorMessage);
-      console.error("Registration error:", err);
+      console.error("Тіркелу қатесі:", err);
     } finally {
       setLoading(false);
     }
@@ -111,14 +111,14 @@ function Signup() {
           <div className="row">
             <div className="col-md-6 mb-3">
               <label htmlFor="firstName" className="form-label fw-bold">
-                First Name:
+                Аты:
               </label>
               <input
                 type="text"
                 className="form-control py-2"
                 id="firstName"
                 name="firstName"
-                placeholder="Enter your first name"
+                placeholder="Атыңызды енгізіңіз"
                 required
                 value={formData.firstName}
                 onChange={handleChange}
@@ -128,14 +128,14 @@ function Signup() {
 
             <div className="col-md-6 mb-3">
               <label htmlFor="lastName" className="form-label fw-bold">
-                Last Name:
+                Тегі:
               </label>
               <input
                 type="text"
                 className="form-control py-2"
                 id="lastName"
                 name="lastName"
-                placeholder="Enter your last name"
+                placeholder="Тегіңізді енгізіңіз"
                 required
                 value={formData.lastName}
                 onChange={handleChange}
@@ -146,14 +146,14 @@ function Signup() {
 
           <div className="mb-3">
             <label htmlFor="username" className="form-label fw-bold">
-              Username:
+              Пайдаланушы аты:
             </label>
             <input
               type="text"
               className="form-control py-2"
               id="username"
               name="username"
-              placeholder="Enter your username"
+              placeholder="Пайдаланушы атыңызды енгізіңіз"
               required
               value={formData.username}
               onChange={handleChange}
@@ -163,14 +163,14 @@ function Signup() {
 
           <div className="mb-3">
             <label htmlFor="email" className="form-label fw-bold">
-              Email address:
+              Электрондық пошта:
             </label>
             <input
               type="email"
               className="form-control py-2"
               id="email"
               name="email"
-              placeholder="Enter your email"
+              placeholder="Электрондық поштаңызды енгізіңіз"
               required
               value={formData.email}
               onChange={handleChange}
@@ -180,7 +180,7 @@ function Signup() {
 
           <div className="mb-3">
             <label htmlFor="phoneNumber" className="form-label fw-bold">
-              Phone Number:
+              Телефон нөмірі:
             </label>
             <input
               type="tel"
@@ -193,19 +193,19 @@ function Signup() {
               onChange={handleChange}
               style={{ backgroundColor: "#f8f9fa" }}
             />
-            <small className="text-muted">Format: +775 XX XXX-XX-XX</small>
+            <small className="text-muted">Формат: +775 XX XXX-XX-XX</small>
           </div>
 
           <div className="mb-4">
             <label htmlFor="password" className="form-label fw-bold">
-              Password:
+              Құпия сөз:
             </label>
             <input
               type="password"
               className="form-control py-2"
               id="password"
               name="password"
-              placeholder="Enter your password"
+              placeholder="Құпия сөзіңізді енгізіңіз"
               required
               value={formData.password}
               onChange={handleChange}
@@ -221,7 +221,7 @@ function Signup() {
             {loading ? (
               <span className="spinner-border spinner-border-sm me-2"></span>
             ) : null}
-            Sign Up
+            Тіркелу
           </button>
 
           {error && (
@@ -232,12 +232,12 @@ function Signup() {
 
           <div className="text-center pt-3">
             <p className="text-muted">
-              Already have an account?{" "}
+              Тіркелгіңіз бар ма?{" "}
               <NavLink
                 to="/login"
                 className="text-primary text-decoration-none"
               >
-                Sign In
+                Кіру
               </NavLink>
             </p>
           </div>

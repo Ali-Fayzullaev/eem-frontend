@@ -680,109 +680,10 @@ textarea:focus {
   background-color: #f9f9f9;
 }
 
-/* Стиль для текста при отсутствии участников */
-.participants-list p {
-  font-size: 18px;
-  color: #888;
-}
-
-@property --eb-progress-value {
-  syntax: "<integer>";
-  inherits: false;
-  initial-value: 0;
-}
-
-@keyframes eb-progress {
-  to {
-    --eb-progress-value: var(--value);
-  }
-}
-
-.eb-progress-bar {
-  --size: 14.5rem;
-  --inner-bg: #f2f2f2;
-  --primary-color: var(--col);
-  --secondary-color: #dfe0e0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0 0px 2px rgb(0 0 0 / 40%), inset 0 0px 1px rgb(0 0 0 / 30%),
-    0 1px 2px rgb(0 0 0 / 60%), 0 4px 2px rgb(0 0 0 / 20%),
-    0 9px 4px rgb(0 0 0 / 10%), inset 0 2px 1px #ffffff8c;
-  width: var(--size);
-  height: var(--size);
-  font-size: calc(var(--size) / 5);
-  color: var(--primary-color);
-  background: radial-gradient(
-      closest-side,
-      var(--inner-bg) 79%,
-      transparent 80% 100%
-    ),
-    conic-gradient(
-      var(--primary-color) calc(var(--eb-progress-value) * 1%),
-      var(--secondary-color) 0
-    );
-  border-radius: 50%;
-
-  &-wrapper {
-    display: grid;
-    place-items: center;
-    gap: 0.5rem;
-    padding: 1rem;
-    transform: scale(1.5);
-  }
-
-  &,
-  &::before {
-    animation: eb-progress 2s 1 forwards;
-  }
-
-  &::before {
-    counter-reset: percentage var(--eb-progress-value);
-    content: counter(percentage) "%";
-    font-weight: 400;
-    font-family: Roboto;
-    color: #1b75e3;
-
-    background: #f5f6f7;
-    background-image: -webkit-gradient(
-      linear,
-      right top,
-      right bottom,
-      color-stop(0%, #ffffff),
-      color-stop(100%, #d3d1cb)
-    );
-
-    box-shadow: 1px 1px 3px rgb(0 0 0 / 15%);
-    padding: 20px 15px;
-    border-radius: 50%;
-    z-index: 1;
-    position: relative;
-    border: 1px solid #d0d0d0;
-  }
-
-  &-title {
-    text-align: center;
-    color: inherit;
-    letter-spacing: 2px;
-    line-height: 1.2;
-    text-transform: uppercase;
-    font-size: 11px;
-    font-weight: 400;
-    font-family: Roboto;
-  }
-
-  progress {
-    visibility: hidden;
-    width: 0;
-    height: 0;
-  }
-}
 
 
 
-
-
+/* admin and user home */
 /* Umumiy konteyner */
 .admin-container {
   display: flex;
@@ -905,6 +806,8 @@ textarea:focus {
   color: white;
 }
 
+/* admin and user home */
+
 
 
 /* CSS для session timer */
@@ -933,6 +836,7 @@ textarea:focus {
   height: 100vh;
 }
 
+/* Modal show */
 .modal.show {
   display: block;
   background-color: rgba(0, 0, 0, 0.5);
@@ -945,14 +849,14 @@ textarea:focus {
   z-index: 1040;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0,0,0,0.5);
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
 .modal {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 1050;
+  z-index: 10510;
   width: 100%;
   height: 100%;
   overflow-x: hidden;
@@ -993,6 +897,12 @@ textarea:focus {
   align-items: center;
   z-index: 1000;
 }
+/* Modal content */
+.modal-content {
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
 
 .modall {
   background: white;
@@ -1006,6 +916,7 @@ textarea:focus {
   margin-top: 20px;
 }
 
+/* Buttons */
 .btn-confirm {
   background: #ff4d4d;
   color: white;
@@ -1098,194 +1009,66 @@ textarea:focus {
 
 /* Modal styling */
 .custom-modal-img {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  right: auto;
-  bottom: auto;
-  transform: translate(-50%, -50%);
-  border: none;
-  background: transparent;
-  padding: 0;
-  max-width: 90%;
-  width: auto;
+position: fixed;
+top: 50%;
+left: 50%;
+right: auto;
+bottom: auto;
+transform: translate(-50%, -50%);
+border: none;
+background: transparent;
+padding: 0;
+max-width: 90%;
+width: auto;
 }
 
 .modal-overlay-img {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.9);
-  z-index: 1000;
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background: rgba(0, 0, 0, 0.9);
+z-index: 1000;
 }
 
 .modal-content-img {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+position: relative;
+display: flex;
+justify-content: center;
+align-items: center;
 }
 
 .modal-image {
-  max-width: 90vw;
-  max-height: 90vh;
-  width: auto;
-  height: auto;
-  object-fit: contain;
-  border-radius: 4px;
+max-width: 90vw;
+max-height: 90vh;
+width: auto;
+height: auto;
+object-fit: contain;
+border-radius: 4px;
 }
 
 /* Close button styling */
 .close-btn {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: rgba(0, 0, 0, 0.5);
-  color: white;
-  border: none;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  font-size: 24px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
+position: absolute;
+top: 20px;
+right: 20px;
+background: rgba(0, 0, 0, 0.5);
+color: white;
+border: none;
+width: 40px;
+height: 40px;
+border-radius: 50%;
+font-size: 24px;
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: center;
+transition: all 0.3s ease;
 }
 
 .close-btn:hover {
-  background: rgba(0, 0, 0, 0.8);
-  transform: scale(1.1);
+background: rgba(0, 0, 0, 0.8);
+transform: scale(1.1);
 }
 
-
-/* Statistics.jsx css  */
-
-.statistics-container {
-  padding: 20px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #333;
-}
-
-/* Card styling */
-.card-statistics {
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  margin-bottom: 20px;
-  height: 100%;
-}
-
-.full-card-statistics {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.card-title-statistics {
-  font-size: 1.2rem;
-  font-weight: 600;
-  margin-bottom: 20px;
-  color: #2c3e50;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 10px;
-}
-
-/* Insight cards */
-.insights-statistics {
-  display: flex;
-  gap: 0px;
-}
-
-.insight-card-statistics {
-  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-  color: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
-  height: 100%;
-}
-
-.insight-card-statistics:hover {
-  transform: translateY(-5px);
-}
-
-.insight-card-statistics h6 {
-  font-size: 0.9rem;
-  font-weight: 500;
-  margin-bottom: 10px;
-  opacity: 0.9;
-}
-
-.insight-value-statistics {
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin: 0;
-}
-
-/* Stats list */
-.stats-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.stats-list li {
-  padding: 10px 0;
-  border-bottom: 1px solid #eee;
-  display: flex;
-  justify-content: space-between;
-}
-
-.stats-list li:last-child {
-  border-bottom: none;
-}
-
-.stats-list li span {
-  font-weight: 600;
-  color: #2c3e50;
-}
-
-/* Chart styling */
-.chart-wrapper-statistics {
-  position: relative;
-  height: 250px;
-  margin-top: 20px;
-  flex-grow: 1;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .insights-statistics {
-    flex-direction: column;
-  }
-  
-  .insight-card-statistics {
-    margin-bottom: 0px;
-  }
-  
-  .chart-wrapper-statistics {
-    height: 250px;
-  }
-}
-
-/* Animation */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.card {
-  animation: fadeIn 0.5s ease-out forwards;
-}
-
-/* Delay animations for each card */
-.card-statistics:nth-child(1) { animation-delay: 0.1s; }
-.card-statistics:nth-child(2) { animation-delay: 0.2s; }
-.card-statistics:nth-child(3) { animation-delay: 0.3s; }
-.card-statistics:nth-child(4) { animation-delay: 0.4s; }

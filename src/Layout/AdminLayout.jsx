@@ -13,10 +13,12 @@ import {
   BiBell,
   BiSolidCalendar,
   BiBarChartAlt2,
-  BiClipboard
+  BiClipboard,
+  BiGroup
 
   
 } from "react-icons/bi";
+import { FaUsers } from "react-icons/fa"
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import iconEventManagement from "../assets/iconEvent.png";
 
@@ -117,6 +119,16 @@ function AdminDashboard() {
           },
         ]
       : []),
+      ...(currentUser?.role === "admin"
+        ? [
+            {
+              id: "eventParticipants",
+              label: "Іс-шараға тіркелгендер",
+              icon: <FaUsers size={20} />,
+              to: "/admin/eventsParticipants",
+            },
+          ]
+        : []),
     {
       id: "create",
       label: "Жаңа жасау",
@@ -147,13 +159,6 @@ function AdminDashboard() {
       icon: <BiSolidCalendar size={20} />,
       to: "/admin/calendar",
     },
-    
-    // {
-    //   id: "map",
-    //   label: "Менің картам",
-    //   icon: <BiMap size={20} />,
-    //   to: "/admin/map",
-    // },
   ];
   
   // Шығу бөлімі (негізгі бөлімнен бөлек)

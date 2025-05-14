@@ -1,4 +1,4 @@
-// // login.jsx
+// login.jsx
 import iconEventManagement from "../assets/iconEvent.png";
 import toast from "react-hot-toast";
 import { useState } from "react";
@@ -17,9 +17,9 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!email || !password) {
-      toast.error("Please enter both email and password.");
+      toast.error("Электрондық пошта мен құпия сөзді енгізіңіз.");
       return;
     }
 
@@ -28,20 +28,20 @@ function Login() {
       setError("");
 
       const result = await authService.login({ email, password });
-      
+
       if (!result.success) {
-        throw new Error(result.error || "Authorization failed.");
+        throw new Error(result.error || "Авторизация сәтсіз аяқталды.");
       }
 
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       const currentUser = authService.getCurrentUser();
 
       if (!currentUser) {
-        throw new Error("Unable to retrieve user information.");
+        throw new Error("Пайдаланушы деректерін алу мүмкін емес.");
       }
 
-      let redirectPath = from || '/';
+      let redirectPath = from || "/";
 
       if (["admin", "manager"].includes(currentUser.role)) {
         redirectPath = "/admin";
@@ -51,14 +51,14 @@ function Login() {
 
       navigate(redirectPath, {
         replace: true,
-        state: { from: location }
+        state: { from: location },
       });
 
-      toast.success("Login successful!");
+      toast.success("Кіру сәтті!");
 
     } catch (err) {
-      console.error('Error 😥', err);
-      const errorMessage = err.message || "Error 😥";
+      console.error('Қате 😥', err);
+      const errorMessage = err.message || "Қате 😥";
       setError(errorMessage);
       toast.error(errorMessage);
       authService.logout();
@@ -71,29 +71,29 @@ function Login() {
     <div className="container-fluid bg-img d-flex justify-content-center align-items-center bg-info" style={{ minHeight: "100vh" }}>
       <div className="card p-4" style={{ width: "100%", maxWidth: "400px" }}>
         <div className="text-center mb-4">
-          <img src={iconEventManagement} className="img-fluid"  alt="" style={{ maxHeight: "80px", objectFit: "cover" }} />
+          <img src={iconEventManagement} className="img-fluid" alt="" style={{ maxHeight: "80px", objectFit: "cover" }} />
         </div>
 
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
-            <label htmlFor="email" className="form-label">Email address:</label>
+            <label htmlFor="email" className="form-label">Электрондық пошта:</label>
             <input
               type="email"
               className="form-control"
               id="email"
-              placeholder="Enter your email..."
+              placeholder="Электрондық поштаны енгізіңіз..."
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
 
           <div className="mb-3">
-            <label htmlFor="password" className="form-label">Password</label>
+            <label htmlFor="password" className="form-label">Құпия сөз:</label>
             <input
               type="password"
               className="form-control"
               id="password"
-              placeholder="Enter your password..."
+              placeholder="Құпия сөзді енгізіңіз..."
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -110,10 +110,10 @@ function Login() {
                   role="status"
                   aria-hidden="true"
                 ></span>
-                Signing in...
+                Кіру...
               </>
             ) : (
-              "Sign In"
+              "Кіру"
             )}
           </button>
 
@@ -125,9 +125,9 @@ function Login() {
 
           <div className="text-center">
             <p className="mb-0">
-              Don't have an account?{" "}
+              Тіркелгіңіз жоқ па?{" "}
               <NavLink to="/signup" className="text-decoration-none">
-                Create Account
+                Тіркелу
               </NavLink>
             </p>
           </div>

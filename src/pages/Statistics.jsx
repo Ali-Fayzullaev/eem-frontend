@@ -1,4 +1,5 @@
 import  { useState } from "react";
+import "../Statistics.css";
 import { Bar, Pie, Line, Doughnut } from "react-chartjs-2"; // График учун
 import {
   Chart as ChartJS,
@@ -33,7 +34,7 @@ function Statistics() {
   const totalEvents = 50;
   const totalParticipants = 1200;
   const mostPopularEvent = "Программалау негіздері";
-  const mostActiveUser = "Әлішер";
+  const mostActiveUser = "big_boss";
 
   // Айлар бойынша қатысушылар саны
   const monthlyParticipantsData = {

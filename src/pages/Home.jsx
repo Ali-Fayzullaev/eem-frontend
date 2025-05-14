@@ -14,7 +14,7 @@ function Home() {
           <div className="d-flex justify-content-between align-items-center">
             <NavLink to="/" className="navbar-brand text-white fw-bold fs-3">
               <i className="bi bi-calendar-event me-2"></i>
-              Event<span className="text-warning">Hub</span>
+              Easy<span className="text-warning">EM</span>
             </NavLink>
             <div className="d-flex gap-3">
               <NavLink
@@ -269,7 +269,7 @@ function Home() {
             <div className="col-md-4 mb-4 mb-md-0">
               <h5 className="fw-bold mb-3 d-flex align-items-center">
                 <i className="bi bi-calendar-event me-2 text-primary"></i>
-                EventHub
+                EasyEM
               </h5>
               <p className="small ">
                 Іс-шараларды ұйымдастыруға және табуға арналған №1 платформа.
@@ -323,7 +323,7 @@ function Home() {
           </div>
           <hr className="my-4 text-muted" />
           <p className="text-center small  mb-0">
-            &copy; 2025 EventHub. Барлық құқықтар қорғалған.
+            &copy; 2025 EasyEM. Барлық құқықтар қорғалған.
           </p>
         </div>
       </footer>

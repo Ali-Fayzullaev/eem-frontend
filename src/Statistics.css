@@ -1,0 +1,128 @@
+
+/* Statistics.jsx css  */
+
+.statistics-container {
+    padding: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+  }
+  
+  /* Card styling */
+  .card-statistics {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+    height: 100%;
+  }
+  
+  .full-card-statistics {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .card-title-statistics {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #2c3e50;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+  }
+  
+  /* Insight cards */
+  .insights-statistics {
+    display: flex;
+    gap: 0px;
+  }
+  
+  .insight-card-statistics {
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    height: 100%;
+  }
+  
+  .insight-card-statistics:hover {
+    transform: translateY(-5px);
+  }
+  
+  .insight-card-statistics h6 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 10px;
+    opacity: 0.9;
+  }
+  
+  .insight-value-statistics {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0;
+  }
+  
+  /* Stats list */
+  .stats-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .stats-list li {
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .stats-list li:last-child {
+    border-bottom: none;
+  }
+  
+  .stats-list li span {
+    font-weight: 600;
+    color: #2c3e50;
+  }
+  
+  /* Chart styling */
+  .chart-wrapper-statistics {
+    position: relative;
+    height: 250px;
+    margin-top: 20px;
+    flex-grow: 1;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .insights-statistics {
+      flex-direction: column;
+    }
+    
+    .insight-card-statistics {
+      margin-bottom: 0px;
+    }
+    
+    .chart-wrapper-statistics {
+      height: 250px;
+    }
+  }
+  
+  /* Animation */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .card {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+  
+  /* Delay animations for each card */
+  .card-statistics:nth-child(1) { animation-delay: 0.1s; }
+  .card-statistics:nth-child(2) { animation-delay: 0.2s; }
+  .card-statistics:nth-child(3) { animation-delay: 0.3s; }
+  .card-statistics:nth-child(4) { animation-delay: 0.4s; }

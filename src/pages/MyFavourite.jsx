@@ -8,74 +8,98 @@ import { NavLink } from "react-router-dom";
 import Modal from "react-modal";
 
 function MyFavourite() {
+  const [activeIndices, setActiveIndices] = useState({});
 
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [selectedImage, setSelectedImage] = useState("");
-
-  const openModal = (imageUrl) => {
-    setSelectedImage(imageUrl);
-    setModalIsOpen(true);
+  // event type
+  const eventTypeKazakh = {
+    MASTERCLASS: "Мастер-класс",
+    WORKSHOP: "Воркшоп",
+    MEETUP: "Кездесу",
+    CONFERENCE: "Конференция",
   };
 
-  const closeModal = () => {
-    setModalIsOpen(false);
-  };
+  // useState
+  const [show, setShow] = useState(true);
 
-  const axiosInstance = axios.create({
-    baseURL: "https://67ddbf11471aaaa742826b6e.mockapi.io/",
+  const token = localStorage.getItem("refreshToken"); // Яхшилаштирилган: accessToken-ни файзасиз
+
+  // API for events
+  const {
+    data: eventsFav,
+    loading,
+    error,
+    refetch,
+  } = useFetch(`http://localhost:8080/api/v1/favorites`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   });
 
-  const {
-    data: events,
-  } = useFetch(`https://67ddbf11471aaaa742826b6e.mockapi.io/events`);
+  // image next prev
+  const handlePrev = (eventId) => {
+    setActiveIndices((prev) => {
+      const currentEvent = eventsFav?.find((e) => e.id === eventId);
+      const imagesCount = currentEvent?.images?.length || 1;
+      if (!currentEvent || !imagesCount) return prev;
+      const newIndex = prev[eventId] === 0 ? imagesCount - 1 : prev[eventId] - 1;
+      return {
+        ...prev,
+        [eventId]: newIndex,
+      };
+    });
+  };
 
-  const [subscribedEvents, setSubscribedEvents] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const handleNext = (eventId) => {
+    setActiveIndices((prev) => {
+      if (!eventsFav) return prev;
 
-  const fetchSubscribedEvents = async () => {
-    setIsLoading(true);
+      const event = eventsFav.find((e) => e.id === eventId);
+      if (!event) return prev;
+
+      const imagesLength = event.images?.length || 0;
+      if (imagesLength === 0) return prev;
+
+      const currentIndex = prev[eventId] || 0;
+
+      const newIndex = currentIndex === imagesLength - 1 ? 0 : currentIndex + 1;
+
+      return {
+        ...prev,
+        [eventId]: newIndex,
+      };
+    });
+  };
+
+  const handleDeleteFav = async (id) => {
     try {
-      const res = await axios.get(
-        "https://67ddbf11471aaaa742826b6e.mockapi.io/events",
-        {
-          params: {
-            subscrib: true,
-          },
-        }
-      );
-      setSubscribedEvents(res.data);
+      const method = "DELETE";
+      const response = await fetch(`http://localhost:8080/api/v1/favorites/${id}`, {
+        method: method,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        console.log(`Іс-шара сәтті өшірілді!`);
+        refetch();
+      } else {
+        // throw new Error("Сервер қатесі");
+        console.log("Сервер қатесі");
+      }
     } catch (err) {
-    //   toast.error("Failed to fetch events");
-      console.error("Error:", err);
-    } finally {
-      setIsLoading(false);
+      console.error("Қате пайда болды:", err);
+      toast.error(err.message || "Өзгерту кезінде қате пайда болды");
     }
   };
 
-  const handleUnsubscribe = async (id) => {
-    try {
-      await axios.put(
-        `https://67ddbf11471aaaa742826b6e.mockapi.io/events/${id}`,
-        {
-          subscrib: false,
-        }
-      );
-      toast.success("Unsubscribed successfully!");
-      fetchSubscribedEvents();
-    } catch (error) {
-      toast.error("Failed to unsubscribe");
-      console.error("Error:", error);
-    }
-  };
-
+  // Add to calendar function (placeholder)
   const addToCalendar = (event) => {
-    toast.success(`Added "${event.eventName}" to calendar`);
-    // Здесь можно добавить реальную логику добавления в календарь
+    toast.info("Add to calendar functionality would go here");
   };
-
-  useEffect(() => {
-    fetchSubscribedEvents();
-  }, [events]);
+  const handleOpenCloseAccordion = () => {
+    setShow(!show);
+  };
 
   return (
     <div className="container py-4">
@@ -89,146 +113,226 @@ function MyFavourite() {
           My Favorites
         </h2>
         <span className="badge bg-pill bg-primary">
-          {isLoading ? (
-            <span className="spinner-border spinner-border-sm"></span>
-          ) : (
-            subscribedEvents.length
-          )}{" "}
-          events
+          {loading ? <span className="spinner-border spinner-border-sm"></span> : eventsFav.length} events
         </span>
       </div>
 
-      {isLoading ? (
+      {loading ? (
         <div className="text-center py-5">
           <div className="spinner-border text-primary" role="status">
             <span className="visually-hidden">Loading...</span>
           </div>
           <p className="mt-3">Loading your favorites...</p>
         </div>
-      ) : subscribedEvents.length > 0 ? (
+      ) : eventsFav.length > 0 ? (
         <div className="row g-4">
-          {subscribedEvents.map((event) => (
-            <div key={event.id} className="col-lg-4 col-md-6">
-              <div className="card favorite-card h-100 border-0 shadow-sm overflow-hidden">
-                <div className="card-img-container position-relative">
-                  <img
-                    src={event.imgUrl || "https://via.placeholder.com/400x200?text=No+Image"}
-                    className="card-img-top"
-                    alt={event.eventName}
-                  />
-                  <div className="card-badge">
-                    {event.eventType === "ONLINE" ? (
-                      <span className="badge bg-success">
-                        <i className="bi bi-wifi"></i> Online
-                      </span>
-                    ) : (
-                      <span className="badge bg-info text-dark">
-                        <i className="bi bi-geo-alt"></i> {event.location}
-                      </span>
+          {eventsFav.map((event) => {
+            const remainingSpots = event.capacity - event.registeredAttendeesCount;
+            const eventImages = event.images || [];
+            const activeIndex = activeIndices[event.id] || 0;
+            return (
+              <div key={event.id} className="col-lg-4 col-md-6">
+                <div className="card favorite-card h-100 border-0 shadow-sm overflow-hidden">
+                  <div className="card-img-container position-relative">
+                    <img
+                      src={eventImages[activeIndex]?.imageUrl || `https://picsum.photos/id/${event.id}/800/600`}
+                      className="img-fluid h-100 w-100 object-fit-cover"
+                      alt={event.title}
+                      loading="lazy"
+                    />
+                    {/* Carousel Controls */}
+                    {eventImages.length > 1 && (
+                      <>
+                        <button
+                          className="carousel-control-prev"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handlePrev(event.id);
+                          }}
+                          style={{
+                            width: "30px",
+                            height: "30px",
+                            top: "50%",
+                            left: "5px",
+                            transform: "translateY(-50%)",
+                            backgroundColor: "rgba(0,0,0,0.3)",
+                            borderRadius: "50%",
+                            border: "none",
+                          }}
+                        >
+                          <span className="carousel-control-prev-icon"></span>
+                        </button>
+                        <button
+                          className="carousel-control-next"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleNext(event.id);
+                          }}
+                          style={{
+                            width: "30px",
+                            height: "30px",
+                            top: "50%",
+                            right: "5px",
+                            transform: "translateY(-50%)",
+                            backgroundColor: "rgba(0,0,0,0.3)",
+                            borderRadius: "50%",
+                            border: "none",
+                          }}
+                        >
+                          <span className="carousel-control-next-icon"></span>
+                        </button>
+                      </>
                     )}
+                    <div className="card-badge">
+                      {event.online ? (
+                        <span className="badge bg-success">
+                          <i className="bi bi-wifi"></i> Online
+                        </span>
+                      ) : (
+                        <span className="badge bg-info text-dark">
+                          <i className="bi bi-geo-alt"></i> {event.address}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                </div>
 
-                <div className="card-body">
-                  <h5 className="card-title">{event.eventName}</h5>
-                  <div className="d-flex align-items-center text-muted mb-2">
-                    <i className="bi bi-translate me-2"></i>
-                    <small>{event.language}</small>
-                  </div>
-                  
-                  <div className="event-meta mb-3">
-                    <div className="d-flex justify-content-between">
-                      <span>
+                  <div className="card-body">
+                    <h5 className="card-title">{event.title}</h5>
+                    <div className="d-flex align-items-center text-muted mb-2"></div>
+
+                    <div className="event-meta mb-3">
+                      <div className="d-flex justify-content-between">
                         <i className="bi bi-calendar-event me-1"></i>
-                        {event.startDate}
-                      </span>
-                      <span>
-                        <i className="bi bi-clock me-1"></i>
-                        {event.startTime}
-                      </span>
+                        <span>
+                          {new Date(event.startDateTime).toLocaleDateString("ru-RU", {
+                            day: "numeric",
+                            month: "long",
+                            year: "numeric",
+                          })}
+                        </span>
+                        <i className="bi bi-clock-history ms-3 mx-2"></i>
+                        <span>
+                          {new Date(event.startDateTime).toLocaleTimeString("ru-RU", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-
-                  <div className="d-flex gap-2">
-                    <button
-                      className="btn btn-sm btn-primary flex-grow-1"
-                      onClick={() => addToCalendar(event)}
-                    >
-                      <i className="bi bi-calendar-plus me-1"></i> Add to Calendar
-                    </button>
-                    <button
-                      className="btn btn-sm btn-outline-danger"
-                      data-bs-toggle="modal"
-                      data-bs-target={`#unsubscribeModal-${event.id}`}
-                    >
-                      <i className="bi bi-heartbreak"></i>
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Модальное окно */}
-              <div
-                className="modal fade"
-                id={`unsubscribeModal-${event.id}`}
-                tabIndex="-1"
-                aria-labelledby="unsubscribeModalLabel"
-                aria-hidden="true"
-              >
-                <div className="modal-dialog modal-dialog-centered">
-                  <div className="modal-content">
-                    <div className="modal-header border-0">
-                      <h5 className="modal-title text-danger">
-                        <i className="bi bi-heartbreak me-2"></i>
-                        Remove from Favorites?
-                      </h5>
-                      <button
-                        type="button"
-                        className="btn-close"
-                        data-bs-dismiss="modal"
-                        aria-label="Close"
-                      ></button>
-                    </div>
-                    <div className="modal-body py-0">
-                      <div className="alert alert-light">
-                        <h6 className="mb-1">{event.eventName}</h6>
-                        <p className="mb-1 small">
-                          <i className="bi bi-calendar me-1"></i>
-                          {event.startDate} at {event.startTime}
-                        </p>
-                        {event.location && (
-                          <p className="mb-0 small">
-                            <i className="bi bi-geo-alt me-1"></i>
-                            {event.location}
-                          </p>
+                    <div className="event-meta mb-3 d-flex justify-content-between">
+                      <div
+                        className={`badge ${
+                          remainingSpots >= 7
+                            ? "bg-primary bg-opacity-10 text-primary"
+                            : "bg-danger bg-opacity-10 text-danger"
+                        }  `}
+                      >
+                        <i className="bi bi-ticket-perforated me-2"></i>
+                        {remainingSpots > 0 ? (
+                          <span>{remainingSpots} орын қалды</span>
+                        ) : (
+                          <span className="text-danger">Толып қалды</span>
                         )}
                       </div>
-                      <p className="mt-3">
-                        This event will be removed from your favorites. You can always add it back later.
-                      </p>
+                      <div>
+                        <span
+                          class={`badge ${
+                            event.eventType === "CONFERENCE" && "MASTERCLASS" ? "text-bg-success" : "text-bg-primary"
+                          } `}
+                        >
+                          {eventTypeKazakh[event.eventType] || event.eventType}
+                        </span>
+                      </div>
                     </div>
-                    <div className="modal-footer border-0">
-                      <button
-                        type="button"
-                        className="btn btn-secondary"
-                        data-bs-dismiss="modal"
-                      >
-                        Cancel
+
+                    <div className="d-flex gap-2">
+                      <button className="btn btn-sm btn-primary flex-grow-1" onClick={() => addToCalendar(event)}>
+                        <i className="bi bi-calendar-plus me-1"></i>Күнтізбеге қосу
                       </button>
                       <button
-                        type="button"
-                        className="btn btn-danger"
-                        onClick={() => handleUnsubscribe(event.id)}
-                        data-bs-dismiss="modal"
+                        className="btn btn-sm btn-outline-danger"
+                        data-bs-toggle="modal"
+                        data-bs-target={`#unsubscribeModal-${event.id}`}
                       >
-                        <i className="bi bi-heartbreak me-1"></i> Remove
+                        <i className="bi bi-heartbreak"></i>
                       </button>
                     </div>
                   </div>
                 </div>
+
+                {/* Модальное окно */}
+                <div
+                  className="modal fade"
+                  id={`unsubscribeModal-${event.id}`}
+                  tabIndex="-1"
+                  aria-labelledby="unsubscribeModalLabel"
+                  aria-hidden="true"
+                >
+                  <div className="modal-dialog modal-dialog-centered">
+                    <div className="modal-content">
+                      <div className="modal-header border-0">
+                        <h5 className="modal-title text-danger">
+                          <i className="bi bi-heartbreak me-2"></i>
+                          Таңдаулылардан өшірілсін бе?
+                        </h5>
+                        <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Жабу"></button>
+                      </div>
+                      <div className="modal-body py-0">
+                        <div className="alert alert-light">
+                        <i class="bi bi-stars"></i>
+                        <span>{event.title}</span>
+                          <div>
+                            <div className="d-flex justify-content-start my-3">
+                              <i className="bi bi-calendar-event me-2"></i>
+                              <span>
+                                {new Date(event.startDateTime).toLocaleDateString("ru-RU", {
+                                  day: "numeric",
+                                  month: "long",
+                                  year: "numeric",
+                                })}
+                              </span>
+                              <i className="bi bi-clock-history ms-3 mx-2"></i>
+                              <span>
+                                {new Date(event.startDateTime).toLocaleTimeString("ru-RU", {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
+                              </span>
+                            </div>
+                          </div>
+                          {event.online ? (
+                            <span className=" text-success">
+                              <i className="bi bi-wifi"></i> Online
+                            </span>
+                          ) : (
+                            <span className="text-success">
+                              <i className="bi bi-geo-alt"></i> {event.address}
+                            </span>
+                          )}
+                        </div>
+                        <p className="mt-3">
+                          Бұл іс-шара таңдаулылар тізімінен өшіріледі. Кейінірек қайта қоса аласыз.
+                        </p>
+                      </div>
+                      <div className="modal-footer border-0">
+                        <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">
+                          Бас тарту
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-danger"
+                          onClick={() => handleDeleteFav(event.id)}
+                          data-bs-dismiss="modal"
+                        >
+                          <i className="bi bi-heartbreak me-1"></i> Өшіру
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className="empty-state text-center py-5">
@@ -236,19 +340,12 @@ function MyFavourite() {
             <i className="bi bi-heart text-muted" style={{ fontSize: "4rem" }}></i>
           </div>
           <h3 className="mt-4">No favorites yet</h3>
-          <p className="text-muted mb-4">
-            You haven't added any events to your favorites. Start exploring!
-          </p>
-          <NavLink
-            to="/events"
-            className="btn btn-primary px-4"
-          >
+          <p className="text-muted mb-4">You haven't added any events to your favorites. Start exploring!</p>
+          <NavLink to="/events" className="btn btn-primary px-4">
             <i className="bi bi-search me-2"></i> Browse Events
           </NavLink>
         </div>
       )}
-
-     
     </div>
   );
 }

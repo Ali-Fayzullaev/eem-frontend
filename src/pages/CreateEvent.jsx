@@ -1,10 +1,8 @@
-import { authService } from "../api/authService";
+import { useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import PhoneInput from "react-phone-input-2";
-import "react-phone-input-2/lib/bootstrap.css";
+import { authService } from "../api/authService";
 
 function CreateEvent() {
   const [formData, setFormData] = useState({
@@ -19,18 +17,129 @@ function CreateEvent() {
     online: false,
     onlineLink: "",
     tagIds: [],
+    images: [], // Расмлар массиви
+    coverImageIndex: 0, // Кивер расм индекси
   });
 
-  const axiosInstance = axios.create({
-    baseURL: "http://localhost:8080/api/v1", // Yangi API manzili
-  });
-
-  const navigate = useNavigate();
-
-  // State variables
   const [validated, setValidated] = useState(false);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
+  // Расмларни юклаш учун
+  const handleImageUpload = async (e) => {
+    const files = Array.from(e.target.files);
+    const uploadedImages = [];
+
+    for (const file of files) {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", "events"); // Cloudinary upload preset
+
+      try {
+        const response = await fetch(
+          `https://api.cloudinary.com/v1_1/dmnx1jyqq/image/upload`,
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+
+        const data = await response.json();
+        uploadedImages.push(data.secure_url); // Cloudinary дан доимий URL
+      } catch (error) {
+        console.error("Ошибка при загрузке изображения:", error);
+        toast.error("Ошибка при загрузке изображения!");
+      }
+    }
+
+    // Жаңа расмларни formData.images массивига қўшамиз
+    setFormData((prevData) => ({
+      ...prevData,
+      images: [...prevData.images, ...uploadedImages],
+    }));
+  };
+
+  // Формани жўнатиш
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+
+    if (form.checkValidity() === false) {
+      event.stopPropagation();
+      toast.error("Пожалуйста, заполните все обязательные поля.");
+      setValidated(true);
+      return;
+    }
+
+    const accessToken = authService.getAccessToken();
+    if (!accessToken) {
+      toast.error("Вы не авторизованы! Пожалуйста, войдите в систему.");
+      navigate("/login");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      // Тайёрланган маълумотлар
+      const requestData = {
+        ...formData,
+        capacity: parseInt(formData.capacity), // Санаш учун рақамга айлантирамиз
+        cityId: formData.online ? null : formData.cityId, // Онлайн бўлса, cityId=null
+        address: formData.online ? null : formData.address, // Онлайн бўлса, address=null
+        onlineLink: formData.online ? formData.onlineLink : null, // Онлайн бўлса, онлайн ссылка
+        tagIds: formData.tagIds.map((id) => parseInt(id)), // tagIds массивини рақамга айлантирамиз
+        images: formData.images.map((image, index) => ({
+          imageUrl: image,
+          isCoverImage: index === formData.coverImageIndex, // Кивер расмни белгилаймиз
+        })),
+      };
+      const axiosInstance = axios.create({
+        baseURL: "http://localhost:8080/api/v1",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      // API га POST со'ров
+      const response = await axiosInstance.post("/events", requestData, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      setTimeout(() => {
+        setLoading(false);
+        toast.success("Мероприятие успешно создано!");
+        navigate("/admin/events");
+
+        // Формани тозалаш
+        setFormData({
+          title: "",
+          description: "",
+          startDateTime: "",
+          endDateTime: "",
+          cityId: "",
+          address: "",
+          eventType: "",
+          capacity: "",
+          online: false,
+          onlineLink: "",
+          tagIds: [],
+          images: [],
+          coverImageIndex: 0,
+        });
+        setValidated(false);
+      }, 1000);
+    } catch (err) {
+      setLoading(false);
+      if (err.response?.status === 401) {
+        toast.error("Сессия истекла! Пожалуйста, войдите снова.");
+        authService.logout();
+        navigate("/login");
+      } else {
+        toast.error("Ошибка при создании мероприятия: " + err.message);
+      }
+    }
+  };
   // Cities of Kazakhstan with IDs
   const cities = [
     { id: 1, name: "Алматы" },
@@ -54,7 +163,7 @@ function CreateEvent() {
     { id: 19, name: "Туркестан" },
   ];
 
-  // Категории для тегов
+  //   // Категории для тегов
   const tagIdsCategories = [
     { id: 1, name: "Технология", colorCode: "#FF5733" },
     { id: 2, name: "Денсаулық", colorCode: "#33FF57" },
@@ -70,77 +179,9 @@ function CreateEvent() {
     { id: 12, name: "Қоғам", colorCode: "#FF33A1" },
     { id: 13, name: "Өмір салты", colorCode: "#FF8C33" },
     { id: 14, name: "Ғылым", colorCode: "#33FFA1" },
-];
+  ];
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    const form = event.currentTarget;
-
-    if (form.checkValidity() === false) {
-      event.stopPropagation();
-      toast.error("Пожалуйста, заполните все обязательные поля.");
-      setValidated(true);
-      return;
-    }
-
-    const accessToken = authService.getAccessToken();
-    if (!accessToken) {
-      toast.error("Вы не авторизованы! Пожалуйста, войдите в систему.");
-      navigate("/login");
-      return;
-    }
-
-    try {
-      setLoading(true);
-
-      // Используем данные из formData
-      const requestData = {
-        ...formData,
-        capacity: parseInt(formData.capacity), // Преобразуем в число
-        cityId: formData.online ? null : formData.cityId, // Если онлайн, cityId = null
-        address: formData.online ? null : formData.address, // Если онлайн, address = null
-        onlineLink: formData.online ? formData.onlineLink : null, // Если онлайн, добавляем ссылку
-        tagIds: formData.tagIds.map((id) => parseInt(id)), // Преобразуем tagIds в массив чисел
-      };
-
-      // Отправляем данные на API
-      const response = await axiosInstance.post("/events", requestData, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-
-      setTimeout(() => {
-        setLoading(false);
-        toast.success("Мероприятие успешно создано!");
-        navigate("/admin");
-        // Сброс полей формы
-        setFormData({
-          title: "",
-          description: "",
-          startDateTime: "",
-          endDateTime: "",
-          cityId: "",
-          address: "",
-          eventType: "",
-          capacity: "",
-          online: false,
-          onlineLink: "",
-          tagIds: [],
-        });
-        setValidated(false);
-      }, 1000);
-    } catch (err) {
-      setLoading(false);
-      if (err.response?.status === 401) {
-        toast.error("Сессия истекла! Пожалуйста, войдите снова.");
-        authService.logout();
-        navigate("/login");
-      } else {
-        toast.error("Ошибка при создании мероприятия: " + err.message);
-      }
-    }
-  };
+  // Форма ўзгаришларини кузатиш
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prevData) => ({
@@ -149,15 +190,15 @@ function CreateEvent() {
     }));
   };
 
-  // Обработчик изменения тегов
+  // Тегларни кузатиш
   const handleTagChange = (e) => {
     const { value, checked } = e.target;
     setFormData((prevData) => {
       let updatedTags = [...prevData.tagIds];
       if (checked) {
-        updatedTags.push(value); // Добавляем тег
+        updatedTags.push(value);
       } else {
-        updatedTags = updatedTags.filter((id) => id !== value); // Удаляем тег
+        updatedTags = updatedTags.filter((id) => id !== value);
       }
       return { ...prevData, tagIds: updatedTags };
     });
@@ -232,7 +273,44 @@ function CreateEvent() {
                     rows="4"
                   ></textarea>
                   <div className="invalid-feedback">
-                    Іс-шара сипаттамасын қосыңыз.
+                    Іс-шара сипаттамасын қосыңз.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Расмларни юклаш */}
+            <div className="mb-4">
+              <h5 className="mb-3 text-info">Расмларни юклаш</h5>
+              <div className="row g-3">
+                <div className="col-12">
+                  <label htmlFor="images" className="form-label fw-medium">
+                    Іс-шараға расмларни танланг
+                  </label>
+                  <input
+                    type="file"
+                    className="form-control"
+                    id="images"
+                    multiple
+                    onChange={handleImageUpload}
+                  />
+                  <div className="mt-3">
+                    {formData.images.length > 0 && (
+                      <div className="d-flex flex-wrap gap-2">
+                        {formData.images.map((image, index) => (
+                          <img
+                            key={index}
+                            src={image}
+                            alt={`Preview ${index}`}
+                            style={{
+                              width: "100px",
+                              height: "100px",
+                              objectFit: "cover",
+                            }}
+                          />
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -286,7 +364,8 @@ function CreateEvent() {
                     htmlFor="startDateTime"
                     className="form-label fw-medium"
                   >
-                    Басталу күні мен уақыты <span className="text-danger">*</span>
+                    Басталу күні мен уақыты{" "}
+                    <span className="text-danger">*</span>
                   </label>
                   <input
                     type="datetime-local"
@@ -303,7 +382,8 @@ function CreateEvent() {
                 </div>
                 <div className="col-12 col-lg-6">
                   <label htmlFor="endDateTime" className="form-label fw-medium">
-                    Аяқталу күні мен уақыты <span className="text-danger">*</span>
+                    Аяқталу күні мен уақыты{" "}
+                    <span className="text-danger">*</span>
                   </label>
                   <input
                     type="datetime-local"
@@ -440,9 +520,7 @@ function CreateEvent() {
               <div className="mt-3">
                 <p
                   className="text-muted small mb-0"
-                  style={{
-                    fontSize: "0.875rem",
-                  }}
+                  style={{ fontSize: "0.875rem" }}
                 >
                   Іс-шараға бірнеше санат таңдай аласыз.
                 </p>

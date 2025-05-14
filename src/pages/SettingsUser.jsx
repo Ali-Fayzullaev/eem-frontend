@@ -12,6 +12,7 @@ function SettingsUser() {
     username: "",
     email: "",
     password: "Aa12345+",
+    phoneNumber: "",
     roles: [],
   });
 
@@ -48,6 +49,7 @@ function SettingsUser() {
       username: user.username,
       email: user.email,
       password: "Aa12345+",
+      phoneNumber: user.phoneNumber,
       roles: user.roles,
     });
   };
@@ -73,10 +75,7 @@ function SettingsUser() {
     if (!editFormData.username) {
       errors.push("Username is required");
     }
-    if (
-      !editFormData.email ||
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editFormData.email)
-    ) {
+    if (!editFormData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editFormData.email)) {
       errors.push("Incorrect email format");
     }
     if (!Array.isArray(editFormData.roles) || editFormData.roles.length === 0) {
@@ -94,25 +93,44 @@ function SettingsUser() {
     }
 
     try {
+      // Prepare payload in the exact required format
       const payload = {
         firstName: editFormData.firstName,
         lastName: editFormData.lastName,
         username: editFormData.username,
         email: editFormData.email,
-        password: editFormData.password,
+        password: editFormData.password, // Always include password
+        phoneNumber: editFormData.phoneNumber || null, // Include phoneNumber even if null
         roles: editFormData.roles.map((role) => ({
           id: role.id,
           name: role.name,
         })),
       };
 
+      console.log("Sending payload:", JSON.stringify(payload, null, 2));
+
       await adminAxios.put(`/users/${editingUser.id}`, payload);
       toast.success("Updated successfully!");
       setEditingUser(null);
       refetch();
     } catch (err) {
-      console.error("Error:", err);
-      toast.error(err.response?.data?.message || "Server error");
+      console.error("Full error details:", {
+        message: err.message,
+        responseData: err.response?.data,
+        status: err.response?.status,
+        config: {
+          url: err.config?.url,
+          data: err.config?.data,
+        },
+      });
+
+      const serverMessage =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        JSON.stringify(err.response?.data) ||
+        "Failed to update user";
+
+      toast.error(`Update failed: ${serverMessage}`);
     }
   };
 
@@ -124,10 +142,7 @@ function SettingsUser() {
         <div className="card-header bg-white border-0 pt-3">
           {" "}
           <h5 className="fw-bold mb-0">Пайдаланушылар</h5>{" "}
-          <p className="text-muted small mb-0">
-            {" "}
-            Барлығы: {tableData?.length || 0}{" "}
-          </p>{" "}
+          <p className="text-muted small mb-0"> Барлығы: {tableData?.length || 0} </p>{" "}
         </div>
         <div className="card-body p-0">
           <div className="table-responsive">
@@ -169,17 +184,11 @@ function SettingsUser() {
                       <td>
                         {user ? (
                           user.roles.includes("ROLE_ADMIN") ? (
-                            <span class="badge fw-medium text-white text-bg-warning">
-                              админ
-                            </span>
+                            <span class="badge fw-medium text-white text-bg-warning">админ</span>
                           ) : user.roles.includes("ROLE_MANAGER") ? (
-                            <span class="badge fw-medium text-white text-bg-info">
-                              менеджер
-                            </span>
+                            <span class="badge fw-medium text-white text-bg-info">менеджер</span>
                           ) : (
-                            <span class="badge fw-medium text-white text-bg-secondary">
-                              пайдаланушы
-                            </span>
+                            <span class="badge fw-medium text-white text-bg-secondary">пайдаланушы</span>
                           )
                         ) : (
                           ""
@@ -202,18 +211,11 @@ function SettingsUser() {
                         </button>
 
                         {/* Жою модальдық терезесі */}
-                        <div
-                          className="modal fade"
-                          id={`deleteModal-${user.id}`}
-                          tabIndex="-1"
-                          aria-hidden="true"
-                        >
+                        <div className="modal fade" id={`deleteModal-${user.id}`} tabIndex="-1" aria-hidden="true">
                           <div className="modal-dialog">
                             <div className="modal-content">
                               <div className="modal-header">
-                                <h5 className="modal-title">
-                                  {user.firstName} жою
-                                </h5>
+                                <h5 className="modal-title">{user.firstName} жою</h5>
                                 <button
                                   type="button"
                                   className="btn-close"
@@ -228,11 +230,7 @@ function SettingsUser() {
                                 </p>
                               </div>
                               <div className="modal-footer">
-                                <button
-                                  type="button"
-                                  className="btn btn-secondary"
-                                  data-bs-dismiss="modal"
-                                >
+                                <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">
                                   Бас тарту
                                 </button>
                                 <button
@@ -270,11 +268,7 @@ function SettingsUser() {
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">Пайдаланушыны өңдеу</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setEditingUser(null)}
-                ></button>
+                <button type="button" className="btn-close" onClick={() => setEditingUser(null)}></button>
               </div>
               <div className="modal-body">
                 <div className="mb-3">
@@ -317,42 +311,38 @@ function SettingsUser() {
                     onChange={handleEditFormChange}
                   />
                 </div>
-                <div className="mb-3 ">
-                  <label className="form-label ">Рөлдері</label>
-                  <select
-                    className="form-select"
-                    value={editFormData.roles.map((r) => r.id)}
-                    onChange={(e) =>
-                      setEditFormData({
-                        ...editFormData,
-                        roles: Array.from(e.target.selectedOptions).map(
-                          (opt) => ({
-                            id: parseInt(opt.value),
-                            name: opt.text,
-                          })
-                        ),
-                      })
-                    }
-                  >
-                    <option value="1">Пайдаланушы</option>
-                    <option value="2">Менеджер</option>
-                    <option value="3">Админ</option>
-                  </select>
+                <div className="mb-3">
+                  <label className="form-label">phoneNumber</label>
+                  <input
+                    type="phoneNumber"
+                    className="form-control"
+                    name="phoneNumber"
+                    value={editFormData.phoneNumber}
+                    onChange={handleEditFormChange}
+                  />
                 </div>
+                <select
+                  className="form-select"
+                  value={editFormData.roles[0]?.id || ""}
+                  onChange={(e) => {
+                    const roleId = parseInt(e.target.value);
+                    const roleName = `ROLE_${e.target.options[e.target.selectedIndex].text.toUpperCase()}`;
+                    setEditFormData({
+                      ...editFormData,
+                      roles: [{ id: roleId, name: roleName }],
+                    });
+                  }}
+                >
+                  <option value="1">USER</option>
+                  <option value="2">MANAGER</option>
+                  <option value="3">ADMIN</option>
+                </select>
               </div>
               <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => setEditingUser(null)}
-                >
+                <button type="button" className="btn btn-secondary" onClick={() => setEditingUser(null)}>
                   Бас тарту
                 </button>
-                <button
-                  type="button"
-                  className="btn bg-primary text-white "
-                  onClick={handleUpdateUser}
-                >
+                <button type="button" className="btn bg-primary text-white " onClick={handleUpdateUser}>
                   Сақтау
                 </button>
               </div>

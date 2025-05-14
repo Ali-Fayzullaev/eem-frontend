@@ -21,11 +21,6 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// const api = axios.create({
-//   baseURL: 'http://localhost:8080/api',
-//   headers: { 'Content-Type': 'application/json' },
-// });
-
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
