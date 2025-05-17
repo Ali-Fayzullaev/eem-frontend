@@ -64,22 +64,22 @@ function UserDashboard() {
     },
     {
       id: "subscribed",
-      label: "Subscribed",
+      label: "Жазылғандар",
       icon: <BiBell size={20} />,
       to: "/user/subscribed",
     },
     {
       id: "favourite",
-      label: "Favourite",
+      label: "Таңдаулылар",
       icon: <BiHeart size={20} />,
       to: "/user/favourite",
     },
     {
       id: "calendar",
-      label: "My Calendar",
+      label: "Менің күнтізбем",
       icon: <BiSolidCalendar size={20} />,
       to: "/user/calendar",
-    }
+    }    
 
     
   ];
