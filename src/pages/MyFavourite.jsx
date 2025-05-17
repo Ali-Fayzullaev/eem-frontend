@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import { authService } from "../api/authService";
 import useFetch from "../hook/useFetch";
 import { toast } from "react-toastify";
 import { Toaster } from "react-hot-toast";
 import { ToastContainer } from "react-toastify";
 import { NavLink } from "react-router-dom";
-import Modal from "react-modal";
 
 function MyFavourite() {
   const [activeIndices, setActiveIndices] = useState({});
@@ -48,6 +47,15 @@ function MyFavourite() {
       };
     });
   };
+
+  const [currentUser, setCurrentUser] = useState(null);
+
+  useEffect(() => {
+    const data = authService.getCurrentUser();
+    if (data) {
+      setCurrentUser(data);
+    }
+  }, []);
 
   const handleNext = (eventId) => {
     setActiveIndices((prev) => {
@@ -246,11 +254,20 @@ function MyFavourite() {
                     </div>
 
                     <div className="d-flex gap-2">
-                      <button className="btn btn-sm btn-primary flex-grow-1" onClick={() => addToCalendar(event)}>
-                        <i className="bi bi-calendar-plus me-1"></i>Күнтізбеге қосу
-                      </button>
+                      <NavLink
+                        to={`/${currentUser && currentUser.role === "admin" && "meneger" ? "admin" : "user"}/${
+                          event.id
+                        }`}
+                        className="flex-grow-1"
+                      >
+                        <button className="btn btn-sm btn-primary w-100" onClick={() => addToCalendar(event)}>
+                          <i className="bi bi-calendar-plus me-1"></i> Күнтізбеге қосу
+                        </button>
+                      </NavLink>
+
                       <button
                         className="btn btn-sm btn-outline-danger"
+                        style={{ whiteSpace: "nowrap" }}
                         data-bs-toggle="modal"
                         data-bs-target={`#unsubscribeModal-${event.id}`}
                       >
@@ -279,8 +296,8 @@ function MyFavourite() {
                       </div>
                       <div className="modal-body py-0">
                         <div className="alert alert-light">
-                        <i class="bi bi-stars"></i>
-                        <span>{event.title}</span>
+                          <i class="bi bi-stars"></i>
+                          <span>{event.title}</span>
                           <div>
                             <div className="d-flex justify-content-start my-3">
                               <i className="bi bi-calendar-event me-2"></i>
@@ -339,10 +356,10 @@ function MyFavourite() {
           <div className="empty-state-icon">
             <i className="bi bi-heart text-muted" style={{ fontSize: "4rem" }}></i>
           </div>
-          <h3 className="mt-4">No favorites yet</h3>
-          <p className="text-muted mb-4">You haven't added any events to your favorites. Start exploring!</p>
+          <h3 className="mt-4">Таңдаулылар жоқ</h3>
+          <p className="text-muted mb-4">Сіз әлі ешқандай іс-шараны таңдаулыларға қоспадыңыз. Зерттеуді бастайық!</p>
           <NavLink to="/events" className="btn btn-primary px-4">
-            <i className="bi bi-search me-2"></i> Browse Events
+            <i className="bi bi-search me-2"></i> Іс-шараларды шолу
           </NavLink>
         </div>
       )}

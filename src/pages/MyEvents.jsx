@@ -155,20 +155,15 @@ function MyEvents() {
                         </span>
                       </div>
 
-                      <div className="d-flex gap-2">
+                      <div className="d-flex gap-2 flex-wrap">
                         {event.online ? (
                           <a
                             href={event?.onlineLink}
+                            className="d-inline-flex align-items-center gap-2 px-3 py-2 text-white text-decoration-none"
                             style={{
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: "8px",
-                              padding: "10px 16px",
                               backgroundColor: "#3b82f6",
-                              color: "white",
                               borderRadius: "8px",
                               fontWeight: 500,
-                              textDecoration: "none",
                               transition: "all 0.2s ease",
                             }}
                             onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#2563eb")}
@@ -176,21 +171,23 @@ function MyEvents() {
                             target="_blank"
                             rel="noopener noreferrer"
                           >
-                            <i class="bi bi-arrow-right-circle-fill"></i>
+                            <i className="bi bi-arrow-right-circle-fill"></i>
                             <span>Онлайн-кіру</span>
                           </a>
                         ) : (
                           <button
-                            className="btn btn-online btn-outline-primary"
+                            className="btn btn-outline-primary"
                             data-bs-toggle="modal"
                             data-bs-target={`#showQrCode-${event?.id}`}
                           >
                             Кіру үшін QR код
                           </button>
                         )}
+
                         <button
-                          className="btn btn-sm btn-outline-danger"
+                          className="btn btn-outline-danger d-flex align-items-center"
                           onClick={() => openUnsubscribeModal(event.id)}
+                          disabled={loading}
                         >
                           {loading ? (
                             <span className="spinner-border spinner-border-sm"></span>
