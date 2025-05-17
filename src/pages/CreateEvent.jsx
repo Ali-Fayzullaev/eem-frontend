@@ -71,6 +71,9 @@ function CreateEvent() {
       return;
     }
 
+    
+
+   
     const accessToken = authService.getAccessToken();
     if (!accessToken) {
       toast.error("Вы не авторизованы! Пожалуйста, войдите в систему.");

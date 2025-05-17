@@ -1072,3 +1072,31 @@ background: rgba(0, 0, 0, 0.8);
 transform: scale(1.1);
 }
 
+.btn-online {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background-color: #3b82f6;
+  color: white;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+.btn-online:hover {
+  background-color: #2563eb;
+  transform: translateY(-1px);
+}
+
+/* Стиль для строк таблицы при наведении */
+.table-hover tbody tr:hover {
+  background-color: rgba(13, 202, 240, 0.1);
+}
+
+/* Анимация галочки */
+.bi-check-circle-fill {
+  transition: transform 0.2s ease;
+}
+.bi-check-circle-fill:hover {
+  transform: scale(1.1);
+}

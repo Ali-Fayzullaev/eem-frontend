@@ -80,8 +80,7 @@ const router = createBrowserRouter(
         </ProtectedRoute>
       ),
       children: [
-        { index: true, element: <Statistics /> },
-        { path: "events", element: <HomeAdmin /> }, // Default route for /admin
+        { index: true, element: <HomeAdmin /> }, // Default route for /admin
         { path: "subscribed", element: <MyEvents /> },
         { path: "favourite", element: <MyFavourite /> },
         { path: "calendar", element: <MyCalendar /> },

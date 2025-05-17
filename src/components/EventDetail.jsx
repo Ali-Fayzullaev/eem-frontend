@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import useFetch from "../hook/useFetchh";
 import { Carousel } from "react-bootstrap";
+import "../UserLayout.css";
 import {
   FaEnvelope,
   FaMapMarkerAlt,
@@ -10,6 +11,7 @@ import {
   FaHeart,
   FaRegHeart,
   FaCheck,
+  FaVideo,
 } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import { Toaster } from "react-hot-toast";
@@ -302,14 +304,20 @@ function EventDetail() {
                                 {detailEvents?.title || "Загрузка..."}
                               </h2>
                               <div className="d-flex align-items-center text-white mt-2">
-                                <FaMapMarkerAlt className="me-2" style={{ fontSize: "1.2rem" }} />
                                 <span
                                   style={{
                                     fontSize: "1rem",
                                     textShadow: "1px 1px 2px rgba(0,0,0,0.5)",
                                   }}
                                 >
-                                  {detailEvents?.online ? "Online" : detailEvents?.address || "Адрес не указан"}
+                                  {detailEvents?.online
+                                    ? ""
+                                    : (
+                                        <span>
+                                          <FaMapMarkerAlt className="me-2" style={{ fontSize: "1.2rem" }} />{" "}
+                                          {detailEvents?.address}
+                                        </span>
+                                      ) || "Адрес не указан"}
                                 </span>
                               </div>
 
@@ -477,27 +485,46 @@ function EventDetail() {
                   </a>
                 </div>
 
-                <div className="mt-auto">
-                  <div className="card border-0 shadow-sm">
-                    <div className="card-header bg-white d-flex justify-content-between align-items-center py-3">
-                      <h6 className="mb-0 d-flex align-items-center">
-                        <FaMapMarkerAlt className="text-danger me-2" />
-                        Местоположение
-                      </h6>
+                {detailEvents?.online ? (
+                 <span className="online-indicator">
+                 <FaVideo className="video-icon" />
+                 <span className="online-text">online</span>
+                 {confirmed && detailEvents?.onlineLink && (
+                   <a
+                     href={detailEvents.onlineLink}
+                     target="_blank"
+                     rel="noopener noreferrer"
+                     className="online-link"
+                   >
+                     Join Event
+                   </a>
+                 )}
+               </span>
+                ) : (
+                  <div className="mt-auto">
+                    <div className="card border-0 shadow-sm">
+                      <div className="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                        <h6 className="mb-0 d-flex align-items-center">
+                          <FaMapMarkerAlt className="text-danger me-2" />
+                          Местоположение
+                        </h6>
+                      </div>
+                      <div className="card-body p-0" style={{ height: "250px" }}>
+                        <iframe
+                          width="100%"
+                          height="100%"
+                          style={{ border: 0 }}
+                          loading="lazy"
+                          allowFullScreen
+                          referrerPolicy="no-referrer-when-downgrade"
+                          src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyDXJS2MqV8-fdce6HQIZ8GvrFiKs1iPRPM&q=${encodeURIComponent(
+                            detailEvents?.address || "Kazakhstan"
+                          )}`}
+                        />
+                      </div>
                     </div>
-                    <div className="card-body p-0" style={{ height: "250px" }}>
-      <iframe
-        width="100%"
-        height="100%"
-        style={{ border: 0 }}
-        loading="lazy"
-        allowFullScreen
-        referrerPolicy="no-referrer-when-downgrade"
-        src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyDXJS2MqV8-fdce6HQIZ8GvrFiKs1iPRPM&q=${encodeURIComponent(detailEvents?.address || "Kazakhstan")}`}
-      />
-    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           </div>

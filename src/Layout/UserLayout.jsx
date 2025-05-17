@@ -57,16 +57,10 @@ function UserDashboard() {
   // Regular tabs (excluding Logout)
   const tabs = [
     {
-      id: "statistics",
-      label: "Dashboard",
-      icon: <BiBarChartAlt2 size={20} />,
-      to: "/user",
-    },
-    {
       id: "allEvents",
       label: "Барлық іс-шаралар",
       icon: <BiClipboard size={20} />,
-      to: "/user/events",
+      to: "/user",
     },
     {
       id: "subscribed",

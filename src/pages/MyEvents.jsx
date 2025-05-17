@@ -156,13 +156,38 @@ function MyEvents() {
                       </div>
 
                       <div className="d-flex gap-2">
-                        <button
-                          className="btn btn-sm btn-outline-primary"
-                          data-bs-toggle="modal"
-                          data-bs-target={`#showQrCode-${event?.id}`}
-                        >
-                          Кіру үшін QR код
-                        </button>
+                        {event.online ? (
+                          <a
+                            href={event?.onlineLink}
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "8px",
+                              padding: "10px 16px",
+                              backgroundColor: "#3b82f6",
+                              color: "white",
+                              borderRadius: "8px",
+                              fontWeight: 500,
+                              textDecoration: "none",
+                              transition: "all 0.2s ease",
+                            }}
+                            onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#2563eb")}
+                            onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#3b82f6")}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <i class="bi bi-arrow-right-circle-fill"></i>
+                            <span>Онлайн-кіру</span>
+                          </a>
+                        ) : (
+                          <button
+                            className="btn btn-online btn-outline-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target={`#showQrCode-${event?.id}`}
+                          >
+                            Кіру үшін QR код
+                          </button>
+                        )}
                         <button
                           className="btn btn-sm btn-outline-danger"
                           onClick={() => openUnsubscribeModal(event.id)}

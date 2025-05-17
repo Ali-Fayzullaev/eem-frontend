@@ -236,7 +236,7 @@ function AdminDashboard() {
             <div className="row  me-0">
               <div className="col-12 ">
                 <i
-                  class={`bi  bi-person-circle fs-3  ${
+                  className={`bi  bi-person-circle fs-3  ${
                     currentUser && currentUser.role === "admin"
                       ? "text-warning"
                       : ""

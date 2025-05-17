@@ -19,7 +19,7 @@ function EditEvent() {
     online: false,
     onlineLink: "",
     tagIds: [],
-    images: [],
+    images: [], // Массив объектов
     coverImageIndex: 0,
   });
 
@@ -72,9 +72,7 @@ function EditEvent() {
       try {
         const token = localStorage.getItem("accessToken");
         const response = await axios.get(`http://localhost:8080/api/v1/events/${idEvent}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
 
         const eventData = response.data;
@@ -83,9 +81,14 @@ function EditEvent() {
           startDateTime: eventData.startDateTime.slice(0, 16),
           endDateTime: eventData.endDateTime.slice(0, 16),
           cityId: eventData.city?.id?.toString() || "",
-          tagIds: formData.tagIds.map((id) => parseInt(id)), // Бу ёзилиши керак
-          images: eventData.images.map((img) => img.imageUrl),
-          coverImageIndex: eventData.images.findIndex((img) => img.isCoverImage),
+          tagIds: eventData.tagIds.map((id) => id.toString()),
+          images: eventData.images.map((img) => ({
+            id: img.id,
+            imageUrl: img.imageUrl,
+            description: img.description,
+            coverImage: img.coverImage,
+          })),
+          coverImageIndex: eventData.images.findIndex((img) => img.coverImage),
         });
         setInitialLoad(false);
       } catch (error) {
@@ -98,7 +101,6 @@ function EditEvent() {
   }, [idEvent, navigate]);
 
   const handleImageUpload = async (e) => {
-    // Оригинальная реализация из CreateEvent
     const files = Array.from(e.target.files);
     const uploadedImages = [];
 
@@ -108,13 +110,18 @@ function EditEvent() {
       formData.append("upload_preset", "events");
 
       try {
-        const response = await fetch(`https://api.cloudinary.com/v1_1/dmnx1jyqq/image/upload`, {
+        const response = await fetch("https://api.cloudinary.com/v1_1/dmnx1jyqq/image/upload ", {
           method: "POST",
           body: formData,
         });
 
         const data = await response.json();
-        uploadedImages.push(data.secure_url);
+        uploadedImages.push({
+          id: null, // Новые изображения не имеют id
+          imageUrl: data.secure_url,
+          description: null,
+          coverImage: false,
+        });
       } catch (error) {
         console.error("Сурет жүктеу кезінде қате:", error);
         toast.error("Сурет жүктеу кезінде қате!");
@@ -157,9 +164,37 @@ function EditEvent() {
     e.preventDefault();
     const form = e.currentTarget;
 
+    // Проверка валидности формы
     if (!form.checkValidity() || !validateUrl(formData.onlineLink)) {
       e.stopPropagation();
       setValidated(true);
+      return;
+    }
+
+    // Проверка обязательных полей
+    if (!formData.title || !formData.description || !formData.startDateTime || !formData.endDateTime) {
+      toast.error("Заполните все обязательные поля");
+      return;
+    }
+
+    if (!formData.eventType) {
+      toast.error("Выберите тип события");
+      return;
+    }
+
+    if (isNaN(formData.capacity) || formData.capacity <= 0) {
+      toast.error("Вместимость должна быть положительным числом");
+      return;
+    }
+
+    if (formData.tagIds.length === 0) {
+      toast.error("Добавьте хотя бы один тег");
+      return;
+    }
+
+    // Проверка cityId и address для офлайн-событий
+    if (!formData.online && (!formData.cityId || !formData.address)) {
+      toast.error("Заполните город и адрес для офлайн-события");
       return;
     }
 
@@ -167,19 +202,31 @@ function EditEvent() {
       setLoading(true);
       const token = localStorage.getItem("accessToken");
 
+      // Формирование данных для отправки
       const requestData = {
-        ...formData,
+        title: formData.title,
+        description: formData.description,
+        startDateTime: `${formData.startDateTime}:00`,
+        endDateTime: `${formData.endDateTime}:00`,
+        eventType: formData.eventType,
         capacity: parseInt(formData.capacity),
-        cityId: formData.online ? null : formData.cityId,
+        cityId: formData.online ? null : parseInt(formData.cityId),
         address: formData.online ? null : formData.address,
-        onlineLink: formData.online ? formData.onlineLink : null,
+        online: formData.online,
+        onlineLink: formData.onlineLink,
         tagIds: formData.tagIds.map((id) => parseInt(id)),
-        images: formData.images.map((img, index) => ({
-          imageUrl: img,
-          isCoverImage: index === formData.coverImageIndex,
+        images: formData.images.map((img) => ({
+          id: img.id,
+          imageUrl: img.imageUrl,
+          description: img.description,
+          coverImage: img.coverImage,
         })),
       };
 
+      // Логирование данных перед отправкой
+      console.log("Request Data:", requestData);
+
+      // Отправка PUT-запроса
       await axios.put(`http://localhost:8080/api/v1/events/${idEvent}`, requestData, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -188,9 +235,18 @@ function EditEvent() {
       });
 
       toast.success("Іс-шара сәтті жаңартылды!");
-      navigate("/admin/events");
+      navigate("/admin/changes");
     } catch (error) {
-      toast.error(error.response?.data?.message || "Іс-шараны жаңарту кезінде қате орын алды");
+      console.error("Error Response:", error.response?.data); // Логирование ошибки
+
+      // Извлечение детальной информации об ошибке
+      if (error.response?.data?.details) {
+        const errorMessages = error.response.data.details.join(", ");
+        toast.error(`Ошибка: ${errorMessages}`);
+      } else {
+        toast.error(error.response?.data?.message || "Произошла ошибка при обновлении события");
+      }
+
       if (error.response?.status === 401) {
         authService.logout();
         navigate("/login");
@@ -319,6 +375,10 @@ function EditEvent() {
                               onClick={() => {
                                 setFormData((prev) => ({
                                   ...prev,
+                                  images: prev.images.map((img, i) => ({
+                                    ...img,
+                                    coverImage: i === index,
+                                  })),
                                   coverImageIndex: index,
                                 }));
                               }}
