@@ -51,7 +51,7 @@ axiosInstance.interceptors.response.use(
         // Рефреш токен ҳам ишламаса, чиқиш
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
-        toast.error('Сессия тугади, қайта киринг');
+        toast.error('Сессия аяқталды, қайтадан кіріңіз!');
         window.location.href = '/login';
         return Promise.reject(refreshError);
       }
