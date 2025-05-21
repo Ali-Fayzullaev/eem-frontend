@@ -22,6 +22,7 @@ import MyCalendar from "./pages/MyCalendar";
 import MyMap from "./pages/MyMap";
 import Statistics from "./pages/Statistics";
 import EventsParticipants from "./pages/EventsParticipants";
+import Payment from "./pages/Payment";
 const router = createBrowserRouter(
   [
     {
@@ -69,7 +70,7 @@ const router = createBrowserRouter(
         { path: "subscribed", element: <MyEvents /> },
         { path: "favourite", element: <MyFavourite /> },
         { path: "calendar", element: <MyCalendar /> },
-        { path: "map", element: <MyMap /> },
+        { path: "pay/:id", element: <Payment /> },
       ],
     },
     {
@@ -86,6 +87,7 @@ const router = createBrowserRouter(
         { path: "calendar", element: <MyCalendar /> },
         { path: "map", element: <MyMap /> },
         { path: ":id", element: <EventDetail /> },
+        { path: "pay/:id", element: <Payment /> },
       ],
     },
     {

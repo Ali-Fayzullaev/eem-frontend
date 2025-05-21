@@ -15,12 +15,12 @@ import {
 } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import { Toaster } from "react-hot-toast";
-import { Outlet, useParams, NavLink, useNavigate } from "react-router-dom";
+import { Outlet, useParams, Link, useNavigate } from "react-router-dom";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "react-toastify/dist/ReactToastify.css";
 import { authService } from "../api/authService";
 import dayjs from "dayjs";
-import maplibregl from "maplibre-gl";
+import maplibregl, { derefLayers } from "maplibre-gl";
 
 function EventDetail() {
   const { id } = useParams();
@@ -432,6 +432,18 @@ function EventDetail() {
                       </>
                     )}
                   </button>
+                  <button className="btn btn-dark">
+                    <Link
+                      to={`/${
+                        (currentUser && currentUser?.role === "admin") || currentUser?.role === "meneger"
+                          ? "admin"
+                          : "user"
+                      }/pay/${detailEvents?.id}`}
+                      style={{ color: "white", textDecoration: "none" }}
+                    >
+                      Төлеу : 56$
+                    </Link>
+                  </button>
                 </div>
 
                 {/* Блок с датами */}
@@ -486,20 +498,20 @@ function EventDetail() {
                 </div>
 
                 {detailEvents?.online ? (
-                 <span className="online-indicator">
-                 <FaVideo className="video-icon" />
-                 <span className="online-text">online</span>
-                 {confirmed && detailEvents?.onlineLink && (
-                   <a
-                     href={detailEvents.onlineLink}
-                     target="_blank"
-                     rel="noopener noreferrer"
-                     className="online-link"
-                   >
-                     Join Event
-                   </a>
-                 )}
-               </span>
+                  <span className="online-indicator">
+                    <FaVideo className="video-icon" />
+                    <span className="online-text">online</span>
+                    {confirmed && detailEvents?.onlineLink && (
+                      <a
+                        href={detailEvents.onlineLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="online-link"
+                      >
+                        Join Event
+                      </a>
+                    )}
+                  </span>
                 ) : (
                   <div className="mt-auto">
                     <div className="card border-0 shadow-sm">
