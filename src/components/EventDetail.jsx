@@ -222,9 +222,33 @@ function EventDetail() {
     { id: 13, name: "Өмір салты", colorCode: "#FF8C33" },
     { id: 14, name: "Ғылым", colorCode: "#33FFA1" },
   ];
-
   const filteredTags = tagIdsCategories.filter((category) => detailEvents?.tagIds?.includes(category.id));
 
+  const cities = [
+    { id: 1, name: "Алматы" },
+    { id: 2, name: "Астана" },
+    { id: 3, name: "Шымкент" },
+    { id: 4, name: "Караганда" },
+    { id: 5, name: "Актобе" },
+    { id: 6, name: "Тараз" },
+    { id: 7, name: "Павлодар" },
+    { id: 8, name: "Усть-Каменогорск" },
+    { id: 9, name: "Семей" },
+    { id: 10, name: "Атырау" },
+    { id: 11, name: "Кокшетау" },
+    { id: 12, name: "Талдыкорган" },
+    { id: 13, name: "Экибастуз" },
+    { id: 14, name: "Кызылорда" },
+    { id: 15, name: "Жезказган" },
+    { id: 16, name: "Рудный" },
+    { id: 17, name: "Кентау" },
+    { id: 18, name: "Темиртау" },
+    { id: 19, name: "Туркестан" },
+  ];
+
+  const cityIds = Array.isArray(detailEvents?.cityId) ? detailEvents.cityId : [detailEvents?.cityId];
+
+  const filteredcitis = cities.filter((city) => cityIds.includes(city.id));
   return (
     <div className="bg-light min-vh-100">
       <ToastContainer position="top-right" autoClose={3000} />
@@ -318,6 +342,22 @@ function EventDetail() {
                                           {detailEvents?.address}
                                         </span>
                                       ) || "Адрес не указан"}
+                                  {filteredcitis.map((city) => (
+                                    <span
+                                      key={city.id}
+                                      style={{
+                                        color: "white",
+                                        padding: "6px 12px",
+                                        borderRadius: "20px",
+                                        fontWeight: "500",
+                                        fontSize: "14px",
+                                        boxShadow: "0 2px 6px rgba(0, 0, 0, 0.15)",
+                                        display: "inline-block",
+                                      }}
+                                    >
+                                      {city.name}
+                                    </span>
+                                  ))}
                                 </span>
                               </div>
 

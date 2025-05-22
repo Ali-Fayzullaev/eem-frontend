@@ -30,7 +30,7 @@ function EditEvent() {
   // Cities и tagIdsCategories остаются как в оригинале
   const cities = [
     { id: 1, name: "Алматы" },
-    { id: 2, name: "Нур-Султан" },
+    { id: 2, name: "Астана" },
     { id: 3, name: "Шымкент" },
     { id: 4, name: "Караганда" },
     { id: 5, name: "Актобе" },

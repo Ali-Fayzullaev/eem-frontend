@@ -115,7 +115,6 @@ const {data: allUsers} = useFetch("http://localhost:8080/api/v1/admin/users", {
 
   const totalEvents = allEvents?.length;
   const totalParticipants = allUsers?.length;
-  const mostPopularEvent = "Программалау негіздері";
   const mostActiveUser = topCreator?.username;
 
   const oflineLenght = allEvents?.length - onlineLength;
@@ -148,13 +147,74 @@ const categoryData = {
       data: chartData,
       backgroundColor: [
         "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF",
-        "#FF9F40", "#C9CBCF", "#FFCD56", "#FF6384", "#36A2EB",
-        "#FFCE56", "#4BC0C0", "#9966FF", "#FF9F40",
+        "#FF9F40", "#8FD3F4", "#FFCD56", "#E7E9ED", "#A4BDFF",
+        "#7AE7BF", "#DBADFF", "#FF887C", "#51B749"
       ],
-      hoverOffset: 4,
+      borderColor: [
+        "#FFFFFF"
+      ],
+      borderWidth: 1,
+      borderRadius: 6,
+      hoverBackgroundColor: [
+        "#FF8FA3", "#5BB3F5", "#FFDD78", "#6BD0D0", "#B088FF",
+        "#FFB873", "#A8DDFF", "#FFDD78", "#F1F3F7", "#C0D1FF",
+        "#96F0D1", "#E8C2FF", "#FFA89E", "#6BC763"
+      ],
+      hoverOffset: 8,
     },
   ],
 };
+
+const options = {
+  responsive: true,
+  plugins: {
+    legend: {
+      position: 'top',
+      labels: {
+        font: {
+          size: 14,
+          family: "'Helvetica Neue', 'Arial', sans-serif"
+        },
+        padding: 20
+      }
+    },
+    tooltip: {
+      backgroundColor: 'rgba(0,0,0,0.8)',
+      titleFont: {
+        size: 16,
+        weight: 'bold'
+      },
+      bodyFont: {
+        size: 14
+      },
+      padding: 12,
+      cornerRadius: 12
+    }
+  },
+  scales: {
+    y: {
+      beginAtZero: true,
+      grid: {
+        color: 'rgba(0,0,0,0.05)'
+      },
+      ticks: {
+        font: {
+          size: 12
+        }
+      }
+    },
+    x: {
+      grid: {
+        display: false
+      },
+      ticks: {
+        font: {
+          size: 12
+        }
+      }
+    }
+  }
+}
 
 const cityMap = {
   1: "Алматы",
@@ -279,41 +339,16 @@ const locationData = {
                 <span>Жалпы қатысушылар:</span> {totalParticipants}
               </li>
               <li>
-                <span>Ең танымал іс-шара:</span> {mostPopularEvent}
-              </li>
-              <li>
                 <span>Ең белсенді пайдаланушы:</span> {mostActiveUser}
               </li>
             </ul>
           </div>
         </div>
-
-        <div className="col-12 col-md-6">
-          <div className="card-statistics full-card-statistics">
-            <h4 className="card-title-statistics">Тілдер бойынша статистика</h4>
-            <div className="chart-wrapper-statistics">
-              <Doughnut data={languageData} />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Categories statistics - moved to its own row */}
-      <div className="row mb-4">
         <div className="col-12 col-md-6">
           <div className="card-statistics full-card-statistics">
             <h4 className="card-title-statistics">Категориялар бойынша статистика</h4>
             <div className="chart-wrapper-statistics">
               <Bar data={categoryData} />
-            </div>
-          </div>
-        </div>
-        {/* Monthly participants chart */}
-        <div className="col-12  col-md-6">
-          <div className="card-statistics full-card-statistics">
-            <h4 className="card-title-statistics">Айлар бойынша қатысушылар</h4>
-            <div className="chart-wrapper-statistics">
-              <Bar data={monthlyParticipantsData} />
             </div>
           </div>
         </div>
