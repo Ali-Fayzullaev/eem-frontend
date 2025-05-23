@@ -217,7 +217,7 @@ function HomeAdmin() {
     <div className="ms-2">
       <Toaster />
       <ToastContainer />
-      <div className="row my-4">
+      <div className="row my-1 mt-3">
         {/* Онлайн/Офлайн филтр */}
         <div className="col-md-3 mb-3">
           <select
@@ -285,8 +285,8 @@ function HomeAdmin() {
       </div>
 
       {/* Оқиғалар рўйхати */}
-      <div className="container my-4">
-        <h5 className="fw-semibold mb-4 text-primary">Барлық оқиғалар</h5>
+      <div className="container">
+        <h5 className="fw-semibold mb-1 text-primary">Барлық оқиғалар:</h5>
         {loading && (
           <div className="d-flex justify-content-center align-items-center py-5">
             <div className="spinner-border text-primary" role="status">
