@@ -8,7 +8,6 @@ import {
   FaCalendarAlt,
   FaClock,
   FaPhone,
-  FaHeart,
   FaRegHeart,
   FaCheck,
   FaVideo,
@@ -472,7 +471,7 @@ function EventDetail() {
                       </>
                     )}
                   </button>
-                  <button className="btn btn-dark">
+                  {/* <button className="btn btn-dark">
                     <Link
                       to={`/${
                         (currentUser && currentUser?.role === "admin") || currentUser?.role === "meneger"
@@ -483,7 +482,7 @@ function EventDetail() {
                     >
                       Төлеу : 56$
                     </Link>
-                  </button>
+                  </button> */}
                 </div>
 
                 {/* Блок с датами */}
