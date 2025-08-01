@@ -259,7 +259,7 @@ function EventDetail() {
         <div className="mb-4">
           <button
             onClick={() =>
-              navigate(`/${currentUser && currentUser.role === "admin" && "meneger" ? "admin" : "user"}/events`)
+              navigate(`/${currentUser?.role === "admin" || currentUser?.role === "meneger" ? "admin" : "user"}`)
             }
             className="btn btn-outline-primary rounded-pill px-4 back-btn d-flex align-items-center"
           >
@@ -492,7 +492,7 @@ function EventDetail() {
                       <FaCalendarAlt className="text-primary fs-5" />
                     </div>
                     <div>
-                      <h6 className="mb-1 text-muted">Начало</h6>
+                      <h6 className="mb-1 text-muted">Басталуы</h6>
                       <p className="mb-0 fw-bold">{formatDateTime(detailEvents?.startDateTime)}</p>
                     </div>
                   </div>
@@ -501,45 +501,45 @@ function EventDetail() {
                       <FaClock className="text-warning fs-5" />
                     </div>
                     <div>
-                      <h6 className="mb-1 text-muted">Окончание</h6>
+                      <h6 className="mb-1 text-muted">Аяқталуы</h6>
                       <p className="mb-0 fw-bold">{formatDateTime(detailEvents?.endDateTime)}</p>
                     </div>
                   </div>
                 </div>
 
-                {/* Описание */}
+                {/* Сипаттама */}
                 <div className="mb-4">
                   <h5 className="d-flex align-items-center mb-3">
                     <span className="highlight-dot bg-primary"></span>
-                    <span className="ms-3">Описание события</span>
+                    <span className="ms-3">Оқиға сипаттамасы</span>
                   </h5>
                   <div className="ps-4">
-                    <p className="text-muted">{detailEvents?.description || "Описание отсутствует"}</p>
+                    <p className="text-muted">{detailEvents?.description || "Сипаттама жоқ"}</p>
                   </div>
                 </div>
 
-                {/* Контакты */}
+                {/* Байланыс */}
                 <div className="d-flex flex-wrap gap-3 mb-4">
                   <a
                     href={`tel:${detailEvents?.creatorPhoneNumber}`}
                     className="btn btn-outline-primary d-flex align-items-center"
                   >
                     <FaPhone className="me-2" />
-                    <span>{detailEvents?.creatorPhoneNumber || "Номер не указан"}</span>
+                    <span>{detailEvents?.creatorPhoneNumber || "Нөмір көрсетілмеген"}</span>
                   </a>
                   <a
                     href={`mailto:${detailEvents?.email}`}
                     className="btn btn-outline-danger d-flex align-items-center"
                   >
                     <FaEnvelope className="me-2" />
-                    <span>{detailEvents?.creatorEmail || "Email не указан"}</span>
+                    <span>{detailEvents?.creatorEmail || "Email көрсетілмеген"}</span>
                   </a>
                 </div>
 
                 {detailEvents?.online ? (
                   <span className="online-indicator">
                     <FaVideo className="video-icon" />
-                    <span className="online-text">online</span>
+                    <span className="online-text">онлайн</span>
                     {confirmed && detailEvents?.onlineLink && (
                       <a
                         href={detailEvents.onlineLink}
@@ -547,7 +547,7 @@ function EventDetail() {
                         rel="noopener noreferrer"
                         className="online-link"
                       >
-                        Join Event
+                        Іс-шараға қосылу
                       </a>
                     )}
                   </span>
@@ -557,7 +557,7 @@ function EventDetail() {
                       <div className="card-header bg-white d-flex justify-content-between align-items-center py-3">
                         <h6 className="mb-0 d-flex align-items-center">
                           <FaMapMarkerAlt className="text-danger me-2" />
-                          Местоположение
+                          Орын
                         </h6>
                       </div>
                       <div className="card-body p-0" style={{ height: "250px" }}>
@@ -569,7 +569,7 @@ function EventDetail() {
                           allowFullScreen
                           referrerPolicy="no-referrer-when-downgrade"
                           src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyDXJS2MqV8-fdce6HQIZ8GvrFiKs1iPRPM&q=${encodeURIComponent(
-                            detailEvents?.address || "Kazakhstan"
+                            detailEvents?.address || "Қазақстан"
                           )}`}
                         />
                       </div>
@@ -600,7 +600,9 @@ function EventDetail() {
                     onClick={() => {
                       window.scrollTo({ top: 0, behavior: "smooth" });
                       navigate(
-                        `/${currentUser && currentUser.role === "admin" && "meneger" ? "admin" : "user"}/${ev.id}`
+                        `/${currentUser?.role === "admin" || currentUser?.role === "manager" ? "admin" : "user"}/${
+                          ev.id
+                        }`
                       );
                     }}
                   >

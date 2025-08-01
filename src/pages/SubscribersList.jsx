@@ -60,13 +60,13 @@ function SubscribersList() {
               {loading ? (
                 <div className="p-3">Loading...</div>
               ) : (
-                <div className="table-responsive">
+                <div className="table-responsive">  
                   <table className="table border border-3 table-hover m-0 mb-0">
                     <thead className="table table-info">
                       <tr>
                         <th scope="col">#</th>
                         <th scope="col">Аты</th>
-                        <th scope="col"> Username</th>
+                        <th scope="col">Пайдаланушы</th>
                         <th scope="col">Күні</th>
                        
 
@@ -94,7 +94,7 @@ function SubscribersList() {
                       ) : (
                         <tr>
                           <td colSpan="4" className="text-center py-3">
-                            No participants found.
+                          Қатысушылар табылмады.
                           </td>
                         </tr>
                       )}

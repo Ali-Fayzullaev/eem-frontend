@@ -118,7 +118,7 @@ function MyFavourite() {
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="m-0 text-gradient">
           <i className="bi bi-heart-fill me-2"></i>
-          My Favorites
+           Таңдаулылар ⭐
         </h2>
         <span className="badge bg-pill bg-primary">
           {loading ? <span className="spinner-border spinner-border-sm"></span> : eventsFav.length} events

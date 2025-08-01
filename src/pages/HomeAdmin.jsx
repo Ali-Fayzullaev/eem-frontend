@@ -430,7 +430,7 @@ function HomeAdmin() {
                   </div>
                   <NavLink
                     className="link-offset-2 link-underline link-underline-opacity-0"
-                    to={`/${currentUser && currentUser.role === "admin" && "meneger" ? "admin" : "user"}/${event.id}`}
+                    to={`/${(currentUser?.role === "admin" || currentUser?.role === "manager") ? "admin" : "user"}/${event.id}`}
                   >
                     {/* Карточка танаси */}
                     <div className="card-body p-3">
